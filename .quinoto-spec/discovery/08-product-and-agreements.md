@@ -71,3 +71,4 @@ Un ítem está **Done** cuando:
 | PA-003 | Los agentes OpenCode se ejecutan en contenedores efímeros sobre Railway. | Vigente | 2026-11-08 |
 | PA-004 | Todo cambio producido por un agente se entrega vía Pull Request; nunca push directo a main. | Vigente | 2026-11-08 |
 | PA-005 | La app nunca almacena tokens de GitHub/Railway en texto plano. | Vigente | 2026-11-08 |
+| PA-006 | El proyecto se distribuye bajo GNU AGPL-3.0. | Vigente | 2026-11-08 |

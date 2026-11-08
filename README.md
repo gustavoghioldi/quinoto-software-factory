@@ -82,3 +82,8 @@ infra/       Docker Compose y Dockerfiles
 - Propuesta: `.quinoto-spec/proposals/2026-11-08-quinoto-software-factory-mvp/proposal.md`
 - Design: `.quinoto-spec/proposals/2026-11-08-quinoto-software-factory-mvp/design.md`
 - User stories y tareas: misma carpeta de propuesta.
+
+## Licencia
+
+Quinoto Software Factory se distribuye bajo **GNU Affero General Public License v3.0**.
+Ver [LICENSE](./LICENSE).
