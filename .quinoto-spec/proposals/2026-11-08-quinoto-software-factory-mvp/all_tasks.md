@@ -45,10 +45,12 @@
 
 | Verificación | Comando | Resultado |
 |---|---|---|
-| Tests | `pnpm test` | 37 tests OK (core 20, adapter 11, api 6) |
-| Typecheck | `pnpm typecheck` | 7/7 tareas OK |
-| Lint | `pnpm lint` | 6/6 tareas OK |
-| Build | `pnpm build` | 6/6 tareas OK |
+| Tests | `pnpm test` | 49 tests OK (core 20, adapter 13, api 16) |
+| Typecheck | `pnpm typecheck` | 10/10 tareas OK |
+| Lint | `pnpm lint` | 7/7 tareas OK |
+| Build | `pnpm build` | 7/7 tareas OK |
+| Migraciones | `docker compose logs migrate` | `migrations applied` |
+| Endpoints | `curl /projects`, `/github/manifest`, `/github/repos` | 200 / 200 / 409 correcto |
 
-**Completadas:** `TSK-017`, `TSK-019`, `TSK-021`, `TSK-028`, `TSK-029`, `TSK-030`, `TSK-031`.
-**Pendientes:** `TSK-016`, `TSK-018`, `TSK-020` y `TSK-022` a `TSK-027` (DB, callback, endpoints y UI).
+**Completadas:** `TSK-016` a `TSK-024` y `TSK-027`/`TSK-028` a `TSK-031` (14/16).
+**Pendientes:** `TSK-025` y `TSK-026` (wizard y listado de proyectos en la UI).

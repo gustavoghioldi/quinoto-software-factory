@@ -8,5 +8,7 @@ export {
   requireMasterKey,
 } from "./crypto.js";
 export { AppError, ValidationError } from "./errors.js";
+export { AesSecretCipher } from "./cipher.js";
+export type { SecretCipher } from "./cipher.js";
 export { EncryptedMemorySecretStore } from "./secrets.js";
 export type { SecretStore } from "./secrets.js";

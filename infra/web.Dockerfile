@@ -9,6 +9,8 @@ COPY apps/web/package.json apps/web/
 COPY apps/worker/package.json apps/worker/
 COPY packages/core/package.json packages/core/
 COPY packages/ui/package.json packages/ui/
+COPY packages/db/package.json packages/db/
+COPY packages/adapters-github/package.json packages/adapters-github/
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build

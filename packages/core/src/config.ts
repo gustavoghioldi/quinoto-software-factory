@@ -30,6 +30,8 @@ export const envSchema = z.object({
   MAX_SESSION_MINUTES: z.coerce.number().int().positive().default(30),
   MAX_SESSIONS_PER_PROJECT: z.coerce.number().int().positive().default(1),
   CORS_ORIGINS: z.string().default("http://localhost:3000,http://127.0.0.1:3000"),
+  FACTORY_BASE_URL: z.string().url().default("http://localhost:4000"),
+  GITHUB_APP_NAME: z.string().min(1).default("quinoto-software-factory"),
   TELEMETRY_ENABLED: booleanFromString,
 });
 

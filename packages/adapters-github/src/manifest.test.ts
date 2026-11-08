@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { buildGitHubAppManifest } from "./manifest.js";
+import { describe, expect, it, vi } from "vitest";
+import { GitHubApiError } from "./errors.js";
+import { buildGitHubAppManifest, exchangeManifestCode } from "./manifest.js";
 
 describe("buildGitHubAppManifest", () => {
   it("builds a self-hosted manifest with minimal permissions", () => {
@@ -30,5 +31,40 @@ describe("buildGitHubAppManifest", () => {
       homepageUrl: "https://quinoto.tech",
     });
     expect(manifest.url).toBe("https://quinoto.tech");
+  });
+});
+
+describe("exchangeManifestCode", () => {
+  it("maps the conversion response", async () => {
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            id: 123,
+            slug: "quinoto-factory",
+            client_id: "client-id",
+            client_secret: "client-secret",
+            pem: "-----BEGIN RSA PRIVATE KEY-----",
+            webhook_secret: "webhook-secret",
+            html_url: "https://github.com/apps/quinoto-factory",
+          }),
+          { status: 201 },
+        ),
+    );
+
+    await expect(exchangeManifestCode({ code: "abc", fetchImpl })).resolves.toMatchObject({
+      appId: "123",
+      slug: "quinoto-factory",
+      clientId: "client-id",
+      privateKeyPem: "-----BEGIN RSA PRIVATE KEY-----",
+      webhookSecret: "webhook-secret",
+    });
+  });
+
+  it("throws a typed error when the exchange fails", async () => {
+    const fetchImpl = vi.fn(async () => new Response("nope", { status: 404 }));
+    await expect(exchangeManifestCode({ code: "abc", fetchImpl })).rejects.toBeInstanceOf(
+      GitHubApiError,
+    );
   });
 });
