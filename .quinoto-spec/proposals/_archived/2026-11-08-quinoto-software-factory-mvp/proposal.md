@@ -4,7 +4,7 @@
 **ID:** 2026-11-08-quinoto-software-factory-mvp
 **Prefijo:** SWFC-f4c2
 **Fecha de Creación:** 2026-11-08
-**Estado:** 🟡 Propuesta
+**Estado:** 🔴 Archivada
 **Aprobación:** 🟢 Aprobada — registro `SWFC-PROPOSAL-APPROVED` (2026-11-08)
 **Prioridad:** P1
 **Complejidad:** Alta

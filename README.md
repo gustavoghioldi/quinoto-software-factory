@@ -79,9 +79,9 @@ infra/       Docker Compose y Dockerfiles
 ## Documentación del proyecto
 
 - PRD: `.quinoto-spec/prd/quinoto-software-factory/prd.md`
-- Propuesta: `.quinoto-spec/proposals/2026-11-08-quinoto-software-factory-mvp/proposal.md`
-- Design: `.quinoto-spec/proposals/2026-11-08-quinoto-software-factory-mvp/design.md`
-- User stories y tareas: misma carpeta de propuesta.
+- Propuesta archivada: `.quinoto-spec/proposals/_archived/2026-11-08-quinoto-software-factory-mvp/proposal.md`
+- Design: `.quinoto-spec/proposals/_archived/2026-11-08-quinoto-software-factory-mvp/design.md`
+- Specs vigentes: `.quinoto-spec/specs/`
 
 ## Licencia
 
