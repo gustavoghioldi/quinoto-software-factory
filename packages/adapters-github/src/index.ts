@@ -1,7 +1,12 @@
 export { GitHubApiError } from "./errors.js";
 export { createAppJwt } from "./jwt.js";
-export { buildGitHubAppManifest } from "./manifest.js";
-export type { GitHubAppManifest, GitHubManifestOptions } from "./manifest.js";
+export { buildGitHubAppManifest, exchangeManifestCode } from "./manifest.js";
+export type {
+  ExchangeManifestCodeOptions,
+  GitHubAppManifest,
+  GitHubManifestOptions,
+  ManifestCredentials,
+} from "./manifest.js";
 export { listInstallationRepositories } from "./repos.js";
 export type {
   GitHubRepository,
