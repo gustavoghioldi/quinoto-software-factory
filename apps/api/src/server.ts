@@ -6,6 +6,7 @@ import { createDependencies } from "./bootstrap.js";
 import type { ApiDependencies } from "./deps.js";
 import { registerApprovalRoutes } from "./routes/approvals.js";
 import { registerDeliveryRoutes } from "./routes/delivery.js";
+import { registerDeploymentRoutes } from "./routes/deployments.js";
 import { registerGitHubRoutes } from "./routes/github.js";
 import { registerHealthRoutes, type ReadinessCheck } from "./routes/health.js";
 import { registerProjectRoutes } from "./routes/projects.js";
@@ -46,6 +47,7 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
     void app.register((instance) => registerApprovalRoutes(instance, deps));
     void app.register((instance) => registerSessionRoutes(instance, deps));
     void app.register((instance) => registerDeliveryRoutes(instance, deps));
+    void app.register((instance) => registerDeploymentRoutes(instance, deps));
   }
 
   return app;

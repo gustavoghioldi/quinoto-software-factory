@@ -7,8 +7,11 @@ import type {
   GitHubInstallationRepository,
   NewGitHubInstallation,
   NewProject,
+  NewRailwayLink,
   ProjectRecord,
   ProjectRepository,
+  RailwayLinkRecord,
+  RailwayLinkRepository,
   WorkflowRepository,
 } from "./repositories.js";
 
@@ -110,5 +113,43 @@ export class InMemoryApprovalRepository implements ApprovalRepository {
 
   async listByProject(projectId: string): Promise<ApprovalRecord[]> {
     return this.records.filter((approval) => approval.projectId === projectId);
+  }
+}
+
+export class InMemoryRailwayLinkRepository implements RailwayLinkRepository {
+  private readonly links = new Map<string, RailwayLinkRecord>();
+
+  async upsert(input: NewRailwayLink): Promise<RailwayLinkRecord> {
+    const existing = this.links.get(input.projectId);
+    const now = new Date();
+    const record: RailwayLinkRecord = {
+      ...input,
+      id: existing?.id ?? randomUUID(),
+      lastDeploymentId: existing?.lastDeploymentId ?? null,
+      lastDeployStatus: existing?.lastDeployStatus ?? null,
+      lastDeployUrl: existing?.lastDeployUrl ?? null,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+    };
+    this.links.set(input.projectId, record);
+    return record;
+  }
+
+  async findByProject(projectId: string): Promise<RailwayLinkRecord | null> {
+    return this.links.get(projectId) ?? null;
+  }
+
+  async updateDeployment(
+    projectId: string,
+    deployment: { id: string; status: string; url: string | null },
+  ): Promise<void> {
+    const existing = this.links.get(projectId);
+    if (!existing) {
+      return;
+    }
+    existing.lastDeploymentId = deployment.id;
+    existing.lastDeployStatus = deployment.status;
+    existing.lastDeployUrl = deployment.url;
+    existing.updatedAt = new Date();
   }
 }

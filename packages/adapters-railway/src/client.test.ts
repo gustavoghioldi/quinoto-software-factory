@@ -85,3 +85,56 @@ describe("createRailwayClient", () => {
     ).rejects.toBeInstanceOf(RailwayApiError);
   });
 });
+
+describe("Railway deployments", () => {
+  it("triggers a deployment through the GraphQL API", async () => {
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({ data: { deploymentCreate: { id: "dep-1", status: "BUILDING" } } }),
+          { status: 200 },
+        ),
+    );
+    const client = createRailwayClient({ token: "t", fetchImpl });
+
+    await expect(
+      client.triggerDeploy({
+        railwayProjectId: "p1",
+        serviceId: "s1",
+        environmentId: "e1",
+      }),
+    ).resolves.toEqual({ id: "dep-1", status: "building", url: null });
+  });
+
+  it("maps a successful deployment", async () => {
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            data: {
+              deployment: { id: "dep-1", status: "SUCCESS", url: "https://app.up.railway.app" },
+            },
+          }),
+          { status: 200 },
+        ),
+    );
+    const client = createRailwayClient({ token: "t", fetchImpl });
+
+    await expect(client.getDeployment("dep-1")).resolves.toEqual({
+      id: "dep-1",
+      status: "success",
+      url: "https://app.up.railway.app",
+    });
+  });
+
+  it("mock supports the deployment lifecycle", async () => {
+    const client = new MockRailwayClient();
+    const deployment = await client.triggerDeploy({
+      railwayProjectId: "p1",
+      serviceId: "s1",
+      environmentId: "e1",
+    });
+    expect(deployment.status).toBe("building");
+    await expect(client.getDeployment(deployment.id)).resolves.toEqual(deployment);
+  });
+});

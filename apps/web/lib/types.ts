@@ -76,3 +76,32 @@ export interface PullRequestResult {
   number: number;
   url: string;
 }
+
+export interface ProjectOverview {
+  id: string;
+  name: string;
+  repoFullName: string;
+  defaultBranch: string;
+  status: string;
+  workflow: { currentStage: string; status: string } | null;
+  activeSessions: number;
+  pullRequests: Array<{ number: number; url: string }>;
+  deploy: { status: string | null; url: string | null } | null;
+}
+
+export interface RailwayLink {
+  id: string;
+  projectId: string;
+  railwayProjectId: string;
+  serviceId: string;
+  environmentId: string;
+  lastDeploymentId: string | null;
+  lastDeployStatus: string | null;
+  lastDeployUrl: string | null;
+}
+
+export interface Deployment {
+  id: string;
+  status: string;
+  url: string | null;
+}

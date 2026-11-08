@@ -97,3 +97,19 @@ export const sessionEvents = pgTable("session_events", {
   payload: jsonb("payload").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const railwayLinks = pgTable("railway_links", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  projectId: uuid("project_id")
+    .notNull()
+    .unique()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  railwayProjectId: text("railway_project_id").notNull(),
+  serviceId: text("service_id").notNull(),
+  environmentId: text("environment_id").notNull(),
+  lastDeploymentId: text("last_deployment_id"),
+  lastDeployStatus: text("last_deploy_status"),
+  lastDeployUrl: text("last_deploy_url"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});

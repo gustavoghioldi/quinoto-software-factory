@@ -14,18 +14,21 @@ import {
   InMemoryArtifactRepository,
   InMemoryGitHubInstallationRepository,
   InMemoryProjectRepository,
+  InMemoryRailwayLinkRepository,
   InMemorySessionStore,
   InMemoryWorkflowRepository,
   PostgresApprovalRepository,
   PostgresArtifactRepository,
   PostgresGitHubInstallationRepository,
   PostgresProjectRepository,
+  PostgresRailwayLinkRepository,
   PostgresSessionStore,
   PostgresWorkflowRepository,
   type ApprovalRepository,
   type ArtifactRepository,
   type GitHubInstallationRepository,
   type ProjectRepository,
+  type RailwayLinkRepository,
   type WorkflowRepository,
 } from "@factory/db";
 import type { ApiDependencies, GitHubService } from "./deps.js";
@@ -53,6 +56,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
   let workflowRepository: WorkflowRepository;
   let artifactRepository: ArtifactRepository;
   let approvalRepository: ApprovalRepository;
+  let railwayLinkRepository: RailwayLinkRepository;
   let sessionStore: InMemorySessionStore | PostgresSessionStore;
 
   if (config.DATABASE_URL) {
@@ -62,6 +66,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     workflowRepository = new PostgresWorkflowRepository(db);
     artifactRepository = new PostgresArtifactRepository(db);
     approvalRepository = new PostgresApprovalRepository(db);
+    railwayLinkRepository = new PostgresRailwayLinkRepository(db);
     sessionStore = new PostgresSessionStore(db);
   } else {
     installations = new InMemoryGitHubInstallationRepository();
@@ -69,6 +74,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     workflowRepository = new InMemoryWorkflowRepository();
     artifactRepository = new InMemoryArtifactRepository();
     approvalRepository = new InMemoryApprovalRepository();
+    railwayLinkRepository = new InMemoryRailwayLinkRepository();
     sessionStore = new InMemorySessionStore();
   }
 
@@ -124,6 +130,8 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
   return {
     installations,
     projects,
+    railwayLinks: railwayLinkRepository,
+    railway,
     cipher,
     github,
     workflows,

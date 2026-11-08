@@ -5,6 +5,7 @@ export {
   InMemoryArtifactRepository,
   InMemoryGitHubInstallationRepository,
   InMemoryProjectRepository,
+  InMemoryRailwayLinkRepository,
   InMemoryWorkflowRepository,
 } from "./memory.js";
 export { InMemorySessionStore, PostgresSessionStore } from "./session-store.js";
@@ -13,6 +14,7 @@ export {
   PostgresArtifactRepository,
   PostgresGitHubInstallationRepository,
   PostgresProjectRepository,
+  PostgresRailwayLinkRepository,
   PostgresWorkflowRepository,
 } from "./postgres.js";
 export type {
@@ -22,8 +24,11 @@ export type {
   GitHubInstallationRepository,
   NewGitHubInstallation,
   NewProject,
+  NewRailwayLink,
   ProjectRecord,
   ProjectRepository,
+  RailwayLinkRecord,
+  RailwayLinkRepository,
   WorkflowRepository,
 } from "./repositories.js";
 export {
@@ -31,6 +36,7 @@ export {
   artifacts,
   githubInstallations,
   projects,
+  railwayLinks,
   sessionEvents,
   sessions,
   workflowRuns,

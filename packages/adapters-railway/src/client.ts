@@ -1,4 +1,12 @@
-import type { RailwayClient, Runner, RunnerSpec, RunnerStatus } from "./types.js";
+import type {
+  DeploySpec,
+  Deployment,
+  DeploymentStatus,
+  RailwayClient,
+  Runner,
+  RunnerSpec,
+  RunnerStatus,
+} from "./types.js";
 
 export class RailwayApiError extends Error {
   constructor(
@@ -35,6 +43,22 @@ function mapStatus(status: string | undefined): RunnerStatus {
       return "terminated";
     default:
       return "provisioning";
+  }
+}
+
+function mapDeploymentStatus(status: string | undefined): DeploymentStatus {
+  switch (status) {
+    case "SUCCESS":
+      return "success";
+    case "FAILED":
+    case "CRASHED":
+      return "failed";
+    case "BUILDING":
+    case "DEPLOYING":
+    case "INITIALIZING":
+      return "building";
+    default:
+      return "unknown";
   }
 }
 
@@ -147,6 +171,60 @@ export function createRailwayClient(options: RailwayClientOptions): RailwayClien
     },
 
     async getLogs(): Promise<string[]> {
+      return [];
+    },
+
+    async triggerDeploy(spec: DeploySpec): Promise<Deployment> {
+      const data = await graphql<{ deploymentCreate: { id: string; status: string } }>(
+        `
+          mutation DeploymentCreate($input: DeploymentCreateInput!) {
+            deploymentCreate(input: $input) {
+              id
+              status
+            }
+          }
+        `,
+        {
+          input: {
+            projectId: spec.railwayProjectId,
+            serviceId: spec.serviceId,
+            environmentId: spec.environmentId,
+          },
+        },
+      );
+      return {
+        id: data.deploymentCreate.id,
+        status: mapDeploymentStatus(data.deploymentCreate.status),
+        url: null,
+      };
+    },
+
+    async getDeployment(deploymentId: string): Promise<Deployment | null> {
+      const data = await graphql<{
+        deployment: { id: string; status: string; url: string | null } | null;
+      }>(
+        `
+          query Deployment($id: String!) {
+            deployment(id: $id) {
+              id
+              status
+              url
+            }
+          }
+        `,
+        { id: deploymentId },
+      );
+      if (!data.deployment) {
+        return null;
+      }
+      return {
+        id: data.deployment.id,
+        status: mapDeploymentStatus(data.deployment.status),
+        url: data.deployment.url,
+      };
+    },
+
+    async getDeploymentLogs(): Promise<string[]> {
       return [];
     },
   };

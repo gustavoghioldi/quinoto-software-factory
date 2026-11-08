@@ -68,3 +68,32 @@ export interface ApprovalRepository {
   create(approval: ApprovalRecord): Promise<void>;
   listByProject(projectId: string): Promise<ApprovalRecord[]>;
 }
+
+export interface RailwayLinkRecord {
+  id: string;
+  projectId: string;
+  railwayProjectId: string;
+  serviceId: string;
+  environmentId: string;
+  lastDeploymentId: string | null;
+  lastDeployStatus: string | null;
+  lastDeployUrl: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface NewRailwayLink {
+  projectId: string;
+  railwayProjectId: string;
+  serviceId: string;
+  environmentId: string;
+}
+
+export interface RailwayLinkRepository {
+  upsert(input: NewRailwayLink): Promise<RailwayLinkRecord>;
+  findByProject(projectId: string): Promise<RailwayLinkRecord | null>;
+  updateDeployment(
+    projectId: string,
+    deployment: { id: string; status: string; url: string | null },
+  ): Promise<void>;
+}

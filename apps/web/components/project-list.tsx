@@ -3,17 +3,17 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { Project } from "@/lib/types";
+import type { ProjectOverview } from "@/lib/types";
 
 export function ProjectList() {
-  const [projects, setProjects] = useState<Project[] | null>(null);
+  const [projects, setProjects] = useState<ProjectOverview[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setError(null);
     setProjects(null);
     api
-      .listProjects()
+      .listOverview()
       .then((data) => setProjects(data.projects))
       .catch((cause: unknown) =>
         setError(cause instanceof Error ? cause.message : "No se pudieron cargar los proyectos"),
@@ -55,11 +55,36 @@ export function ProjectList() {
       {projects.map((project) => (
         <li
           key={project.id}
-          style={{ border: "1px solid #e0e0e0", borderRadius: 8, padding: "0.75rem 1rem" }}
+          style={{ border: "1px solid #e0e0e0", borderRadius: 8, padding: "0.9rem 1rem" }}
         >
-          <strong>{project.name}</strong>
-          <div style={{ color: "#555", fontSize: 14, marginTop: 4 }}>
-            {project.repoFullName} · {project.defaultBranch} · {project.status}
+          <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem" }}>
+            <div>
+              <strong>
+                <Link href={`/projects/${project.id}`} style={{ color: "#1a5fb4" }}>
+                  {project.name}
+                </Link>
+              </strong>
+              <div style={{ color: "#555", fontSize: 14, marginTop: 4 }}>
+                {project.repoFullName} · {project.defaultBranch}
+              </div>
+            </div>
+            <span style={{ fontSize: 13, color: "#555" }}>
+              {project.workflow
+                ? `${project.workflow.currentStage} · ${project.workflow.status}`
+                : "sin workflow"}
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: "1rem", marginTop: 8, fontSize: 13, color: "#444" }}>
+            <span>Sesiones activas: {project.activeSessions}</span>
+            <span>PRs: {project.pullRequests.length}</span>
+            <span>
+              Deploy:{" "}
+              {project.deploy?.status
+                ? project.deploy.status
+                : project.deploy
+                  ? "sin deploy"
+                  : "sin Railway"}
+            </span>
           </div>
         </li>
       ))}

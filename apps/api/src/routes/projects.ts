@@ -13,6 +13,46 @@ export async function registerProjectRoutes(
 ): Promise<void> {
   app.get("/projects", async () => ({ projects: await deps.projects.list() }));
 
+  app.get("/projects/overview", async () => {
+    const projects = await deps.projects.list();
+    const overview = await Promise.all(
+      projects.map(async (project) => {
+        const workflow = await deps.workflows.get(project.id);
+        const sessions = await deps.agentRuntime.listByProject(project.id);
+        const activeSessions = sessions.filter(
+          (session) => session.status === "running" || session.status === "provisioning",
+        ).length;
+
+        const pullRequests: unknown[] = [];
+        for (const session of sessions) {
+          const events = await deps.agentRuntime.events(session.id);
+          for (const event of events) {
+            if (event.type === "pull_request") {
+              pullRequests.push(event.payload);
+            }
+          }
+        }
+
+        const link = await deps.railwayLinks.findByProject(project.id);
+        return {
+          id: project.id,
+          name: project.name,
+          repoFullName: project.repoFullName,
+          defaultBranch: project.defaultBranch,
+          status: project.status,
+          workflow: workflow
+            ? { currentStage: workflow.currentStage, status: workflow.status }
+            : null,
+          activeSessions,
+          pullRequests,
+          deploy: link ? { status: link.lastDeployStatus, url: link.lastDeployUrl } : null,
+        };
+      }),
+    );
+
+    return { projects: overview };
+  });
+
   app.post("/projects", async (request, reply) => {
     const body = (request.body ?? {}) as CreateProjectBody;
     if (!body.name || !body.repoFullName || !body.defaultBranch) {
