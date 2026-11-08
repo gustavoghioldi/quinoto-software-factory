@@ -10,4 +10,11 @@ export type {
   ProjectRecord,
   ProjectRepository,
 } from "./repositories.js";
-export { githubInstallations, projects } from "./schema.js";
+export {
+  githubInstallations,
+  projects,
+  workflowRuns,
+  workflowStages,
+  artifacts,
+  approvals,
+} from "./schema.js";
