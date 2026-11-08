@@ -3,6 +3,7 @@ import {
   createInstallationTokenProvider,
   exchangeManifestCode,
   listInstallationRepositories,
+  openPullRequest as openGitHubPullRequest,
   verifyWebhookSignature,
 } from "@factory/adapters-github";
 import { createRailwayClient, MockRailwayClient } from "@factory/adapters-railway";
@@ -109,6 +110,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
       return provider.getToken(installationId);
     },
     listRepositories: (token: string) => listInstallationRepositories({ token }),
+    openPullRequest: (input) => openGitHubPullRequest(input),
     async verifyWebhook(payload: string, signature: string | undefined): Promise<boolean> {
       const latest = await installations.findLatest();
       if (!latest) {

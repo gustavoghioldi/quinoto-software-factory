@@ -62,3 +62,17 @@ export interface SessionEvent {
   payload: unknown;
   createdAt: string;
 }
+
+export interface DiffFile {
+  path: string;
+  patch: string;
+}
+
+export interface SessionDiff {
+  files: DiffFile[];
+}
+
+export interface PullRequestResult {
+  number: number;
+  url: string;
+}

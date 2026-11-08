@@ -1,14 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
-import type { AgentSession, SessionEvent } from "@/lib/types";
+import type { AgentSession, PullRequestResult, SessionDiff, SessionEvent } from "@/lib/types";
 
 export function SessionViewer({ sessionId }: { sessionId: string }) {
   const [session, setSession] = useState<AgentSession | null>(null);
   const [events, setEvents] = useState<SessionEvent[]>([]);
+  const [diff, setDiff] = useState<SessionDiff | null>(null);
+  const [pullRequest, setPullRequest] = useState<PullRequestResult | null>(null);
+  const [title, setTitle] = useState("");
+  const [baseBranch, setBaseBranch] = useState("main");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [opening, setOpening] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -29,6 +34,15 @@ export function SessionViewer({ sessionId }: { sessionId: string }) {
         if (active) setEvents(data.events);
       })
       .catch(() => undefined);
+
+    api
+      .getSessionDiff(sessionId)
+      .then((data) => {
+        if (active) setDiff(data);
+      })
+      .catch(() => {
+        if (active) setDiff(null);
+      });
 
     const source = new EventSource(api.sessionEventsUrl(sessionId));
     source.onmessage = (message) => {
@@ -53,6 +67,25 @@ export function SessionViewer({ sessionId }: { sessionId: string }) {
       setError(cause instanceof Error ? cause.message : "No se pudo cancelar la sesión");
     } finally {
       setBusy(false);
+    }
+  };
+
+  const openPullRequest = async (event: FormEvent) => {
+    event.preventDefault();
+    setOpening(true);
+    setError(null);
+    try {
+      setPullRequest(
+        await api.openPullRequest(sessionId, {
+          title,
+          body: "Generado por Quinoto Software Factory",
+          baseBranch,
+        }),
+      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "No se pudo abrir el Pull Request");
+    } finally {
+      setOpening(false);
     }
   };
 
@@ -100,7 +133,7 @@ export function SessionViewer({ sessionId }: { sessionId: string }) {
               color: "#eee",
               padding: "1rem",
               borderRadius: 8,
-              maxHeight: 480,
+              maxHeight: 360,
               overflow: "auto",
               fontSize: 13,
               whiteSpace: "pre-wrap",
@@ -114,6 +147,92 @@ export function SessionViewer({ sessionId }: { sessionId: string }) {
           </pre>
         </>
       )}
+
+      <div>
+        <h2 style={{ fontSize: "1.05rem" }}>Diff</h2>
+        {diff ? (
+          diff.files.map((file) => (
+            <details
+              key={file.path}
+              style={{
+                border: "1px solid #e0e0e0",
+                borderRadius: 6,
+                padding: "0.5rem 0.75rem",
+                marginBottom: 8,
+              }}
+            >
+              <summary style={{ cursor: "pointer" }}>{file.path}</summary>
+              <pre style={{ overflow: "auto", fontSize: 12 }}>{file.patch}</pre>
+            </details>
+          ))
+        ) : (
+          <p style={{ color: "#666" }}>Sin diff disponible para esta sesión.</p>
+        )}
+      </div>
+
+      <div>
+        <h2 style={{ fontSize: "1.05rem" }}>Pull Request</h2>
+        {pullRequest ? (
+          <p>
+            PR abierto:{" "}
+            <a href={pullRequest.url} target="_blank" rel="noreferrer">
+              #{pullRequest.number}
+            </a>
+          </p>
+        ) : (
+          <form
+            onSubmit={openPullRequest}
+            style={{ display: "grid", gap: "0.75rem", maxWidth: 520 }}
+          >
+            <label style={labelStyle}>
+              Título
+              <input
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                required
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Branch base
+              <input
+                value={baseBranch}
+                onChange={(event) => setBaseBranch(event.target.value)}
+                required
+                style={inputStyle}
+              />
+            </label>
+            <button type="submit" disabled={opening} style={buttonStyle}>
+              {opening ? "Abriendo…" : "Crear Pull Request"}
+            </button>
+          </form>
+        )}
+      </div>
     </section>
   );
 }
+
+const buttonStyle = {
+  border: "1px solid #1a5fb4",
+  background: "#1a5fb4",
+  color: "white",
+  borderRadius: 6,
+  padding: "0.5rem 1rem",
+  cursor: "pointer",
+  justifySelf: "start",
+} as const;
+
+const labelStyle = {
+  display: "grid",
+  gap: "0.35rem",
+  fontSize: 14,
+  fontWeight: 600,
+} as const;
+
+const inputStyle = {
+  border: "1px solid #ccc",
+  borderRadius: 6,
+  padding: "0.5rem 0.6rem",
+  fontSize: 14,
+  fontWeight: 400,
+} as const;

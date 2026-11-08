@@ -2,6 +2,7 @@ import type {
   GitHubRepository,
   InstallationTokenProvider,
   ManifestCredentials,
+  PullRequestResult,
 } from "@factory/adapters-github";
 import type { SecretCipher } from "@factory/core";
 import type { GitHubInstallationRepository, ProjectRepository } from "@factory/db";
@@ -12,6 +13,15 @@ export interface GitHubService {
   exchangeManifestCode(code: string): Promise<ManifestCredentials>;
   getInstallationToken(installationId: number): Promise<string>;
   listRepositories(token: string): Promise<GitHubRepository[]>;
+  openPullRequest(input: {
+    token: string;
+    owner: string;
+    repo: string;
+    head: string;
+    base: string;
+    title: string;
+    body: string;
+  }): Promise<PullRequestResult>;
   verifyWebhook(payload: string, signature: string | undefined): Promise<boolean>;
 }
 

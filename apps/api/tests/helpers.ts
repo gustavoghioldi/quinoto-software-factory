@@ -35,6 +35,10 @@ export function makeDeps(overrides: Partial<GitHubService> = {}): TestDeps {
     listRepositories: async () => [
       { id: 1, fullName: "acme/web", defaultBranch: "main", private: true },
     ],
+    openPullRequest: async () => ({
+      number: 1,
+      url: "https://github.com/acme/web/pull/1",
+    }),
     verifyWebhook: async (_payload, signature) => signature === "sha256=valid",
     ...overrides,
   };
