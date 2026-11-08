@@ -2,16 +2,40 @@ import { buildGitHubAppManifest } from "@factory/adapters-github";
 import type { FastifyInstance } from "fastify";
 import type { ApiDependencies } from "../deps.js";
 
+function isPublicBaseUrl(value: string): boolean {
+  try {
+    const host = new URL(value).hostname.toLowerCase();
+    return !(
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host === "0.0.0.0" ||
+      host === "::1" ||
+      host === "[::1]" ||
+      host.endsWith(".local")
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function registerGitHubRoutes(
   app: FastifyInstance,
   deps: ApiDependencies,
 ): Promise<void> {
-  app.get("/github/manifest", async () =>
-    buildGitHubAppManifest({
+  app.get("/github/manifest", async (_request, reply) => {
+    if (!isPublicBaseUrl(deps.manifest.baseUrl)) {
+      return reply.code(409).send({
+        error: "public_url_required",
+        message:
+          "FACTORY_BASE_URL must be a public URL (Railway or a tunnel) to create a GitHub App.",
+      });
+    }
+
+    return buildGitHubAppManifest({
       name: deps.manifest.name,
       baseUrl: deps.manifest.baseUrl,
-    }),
-  );
+    });
+  });
 
   app.get("/github/manifest/callback", async (request, reply) => {
     const { code } = request.query as { code?: string };
