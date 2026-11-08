@@ -22,6 +22,13 @@
       "when": 1794122737229,
       "tag": "0002_sturdy_the_stranger",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794124375774,
+      "tag": "0003_round_polaris",
+      "breakpoints": true
     }
   ]
 }

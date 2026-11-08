@@ -95,3 +95,17 @@
 | UI | `curl /sessions/:id` | “Diff”, “Pull Request”, “Sesión de agente” |
 
 **Completadas:** `TSK-055` a `TSK-062` (**8/8**). F4 cerrado.
+
+## Evidencia F5 (2026-11-08)
+
+| Verificación | Comando | Resultado |
+|---|---|---|
+| Tests | `pnpm test` | 95 tests OK (core 31, github 17, railway 7, api 40) |
+| Typecheck | `pnpm typecheck` | 12/12 tareas OK |
+| Lint | `pnpm lint` | 8/8 tareas OK |
+| Build | `pnpm build` | 8/8 tareas OK |
+| Migración | `docker compose logs migrate` | `migrations applied` (0000–0003) |
+| API | `curl /projects/overview` | `{"projects":[]}` |
+| UI | `curl /projects/:id` | “Proyecto”, “Railway” |
+
+**Completadas:** `TSK-063` a `TSK-070` (**8/8**). F5 cerrado.

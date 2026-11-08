@@ -14,6 +14,7 @@ export interface StartSessionInput {
 export interface AgentRuntime {
   start(input: StartSessionInput): Promise<AgentSession>;
   get(sessionId: string): Promise<AgentSession | null>;
+  listByProject(projectId: string): Promise<AgentSession[]>;
   cancel(sessionId: string): Promise<AgentSession>;
   events(sessionId: string): Promise<SessionEvent[]>;
   appendEvent(sessionId: string, type: string, payload: unknown): Promise<SessionEvent>;
@@ -98,6 +99,8 @@ export function createAgentRuntime(options: AgentRuntimeOptions): AgentRuntime {
     },
 
     get: (sessionId: string) => options.store.get(sessionId),
+
+    listByProject: (projectId: string) => options.store.listByProject(projectId),
 
     async cancel(sessionId: string): Promise<AgentSession> {
       const session = await options.store.get(sessionId);

@@ -5,6 +5,7 @@ import {
   InMemoryArtifactRepository,
   InMemoryGitHubInstallationRepository,
   InMemoryProjectRepository,
+  InMemoryRailwayLinkRepository,
   InMemorySessionStore,
   InMemoryWorkflowRepository,
 } from "@factory/db";
@@ -46,10 +47,13 @@ export function makeDeps(overrides: Partial<GitHubService> = {}): TestDeps {
   const workflowRepository = new InMemoryWorkflowRepository();
   const artifactRepository = new InMemoryArtifactRepository();
   const approvalRepository = new InMemoryApprovalRepository();
+  const railway = new MockRailwayClient();
 
   return {
     installations: new InMemoryGitHubInstallationRepository(),
     projects: new InMemoryProjectRepository(),
+    railwayLinks: new InMemoryRailwayLinkRepository(),
+    railway,
     cipher: new AesSecretCipher({ FACTORY_MASTER_KEY: masterKey }),
     github,
     workflows: createWorkflowService({
@@ -58,7 +62,7 @@ export function makeDeps(overrides: Partial<GitHubService> = {}): TestDeps {
       approvals: approvalRepository,
     }),
     agentRuntime: createAgentRuntime({
-      railway: new MockRailwayClient(),
+      railway,
       store: new InMemorySessionStore(),
     }),
     manifest: {

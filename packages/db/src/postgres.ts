@@ -15,8 +15,11 @@ import type {
   GitHubInstallationRepository,
   NewGitHubInstallation,
   NewProject,
+  NewRailwayLink,
   ProjectRecord,
   ProjectRepository,
+  RailwayLinkRecord,
+  RailwayLinkRepository,
   WorkflowRepository,
 } from "./repositories.js";
 import {
@@ -24,6 +27,7 @@ import {
   artifacts,
   githubInstallations,
   projects,
+  railwayLinks,
   workflowRuns,
   workflowStages,
 } from "./schema.js";
@@ -222,5 +226,53 @@ export class PostgresApprovalRepository implements ApprovalRepository {
       scope: row.scope,
       rationale: row.rationale,
     }));
+  }
+}
+
+export class PostgresRailwayLinkRepository implements RailwayLinkRepository {
+  constructor(private readonly db: Database) {}
+
+  async upsert(input: NewRailwayLink): Promise<RailwayLinkRecord> {
+    const [row] = await this.db
+      .insert(railwayLinks)
+      .values(input)
+      .onConflictDoUpdate({
+        target: railwayLinks.projectId,
+        set: {
+          railwayProjectId: input.railwayProjectId,
+          serviceId: input.serviceId,
+          environmentId: input.environmentId,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    if (!row) {
+      throw new Error("failed to upsert railway link");
+    }
+    return row;
+  }
+
+  async findByProject(projectId: string): Promise<RailwayLinkRecord | null> {
+    const rows = await this.db
+      .select()
+      .from(railwayLinks)
+      .where(eq(railwayLinks.projectId, projectId))
+      .limit(1);
+    return rows[0] ?? null;
+  }
+
+  async updateDeployment(
+    projectId: string,
+    deployment: { id: string; status: string; url: string | null },
+  ): Promise<void> {
+    await this.db
+      .update(railwayLinks)
+      .set({
+        lastDeploymentId: deployment.id,
+        lastDeployStatus: deployment.status,
+        lastDeployUrl: deployment.url,
+        updatedAt: new Date(),
+      })
+      .where(eq(railwayLinks.projectId, projectId));
   }
 }

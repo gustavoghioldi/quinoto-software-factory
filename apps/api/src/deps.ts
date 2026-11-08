@@ -5,7 +5,12 @@ import type {
   PullRequestResult,
 } from "@factory/adapters-github";
 import type { SecretCipher } from "@factory/core";
-import type { GitHubInstallationRepository, ProjectRepository } from "@factory/db";
+import type {
+  GitHubInstallationRepository,
+  ProjectRepository,
+  RailwayLinkRepository,
+} from "@factory/db";
+import type { RailwayClient } from "@factory/adapters-railway";
 import type { AgentRuntime } from "./services/agent-runtime.js";
 import type { WorkflowService } from "./services/workflow-service.js";
 
@@ -28,6 +33,8 @@ export interface GitHubService {
 export interface ApiDependencies {
   installations: GitHubInstallationRepository;
   projects: ProjectRepository;
+  railwayLinks: RailwayLinkRepository;
+  railway: RailwayClient;
   cipher: SecretCipher;
   github: GitHubService;
   workflows: WorkflowService;

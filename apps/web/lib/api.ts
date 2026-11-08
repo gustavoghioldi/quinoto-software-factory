@@ -1,8 +1,11 @@
 import type {
   AgentSession,
   Approval,
+  Deployment,
   Project,
+  ProjectOverview,
   PullRequestResult,
+  RailwayLink,
   Repository,
   SessionDiff,
   SessionEvent,
@@ -95,4 +98,17 @@ export const api = {
       method: "POST",
       body: JSON.stringify(input),
     }),
+  listOverview: () => request<{ projects: ProjectOverview[] }>("/projects/overview"),
+  linkRailway: (
+    projectId: string,
+    input: { railwayProjectId: string; serviceId: string; environmentId: string },
+  ) =>
+    request<RailwayLink>(`/projects/${projectId}/railway`, {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  getRailwayLink: (projectId: string) => request<RailwayLink>(`/projects/${projectId}/railway`),
+  triggerDeploy: (projectId: string) =>
+    request<Deployment>(`/projects/${projectId}/deploy`, { method: "POST" }),
+  getDeploy: (projectId: string) => request<Deployment>(`/projects/${projectId}/deploy`),
 };
