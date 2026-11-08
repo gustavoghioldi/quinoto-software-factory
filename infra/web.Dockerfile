@@ -15,6 +15,8 @@ COPY packages/adapters-railway/package.json packages/adapters-railway/
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 COPY tsconfig.base.json turbo.json ./
 COPY packages/core packages/core
 COPY packages/ui packages/ui
