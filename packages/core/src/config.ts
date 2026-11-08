@@ -16,6 +16,7 @@ export const envSchema = z.object({
   FACTORY_MASTER_KEY: z.preprocess(emptyToUndefined, z.string().min(32).optional()),
   MAX_SESSION_MINUTES: z.coerce.number().int().positive().default(30),
   MAX_SESSIONS_PER_PROJECT: z.coerce.number().int().positive().default(1),
+  CORS_ORIGINS: z.string().default("http://localhost:3000,http://127.0.0.1:3000"),
   TELEMETRY_ENABLED: booleanFromString,
 });
 

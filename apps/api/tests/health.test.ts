@@ -25,4 +25,16 @@ describe("health endpoints", () => {
     expect(response.json()).toMatchObject({ status: "unavailable", failing: ["redis"] });
     await app.close();
   });
+
+  it("allows the configured web origin", async () => {
+    const app = buildServer({ corsOrigins: ["http://localhost:3000"] });
+    const response = await app.inject({
+      method: "GET",
+      url: "/healthz",
+      headers: { origin: "http://localhost:3000" },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["access-control-allow-origin"]).toBe("http://localhost:3000");
+    await app.close();
+  });
 });

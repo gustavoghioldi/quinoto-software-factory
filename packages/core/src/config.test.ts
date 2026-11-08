@@ -32,4 +32,8 @@ describe("loadConfig", () => {
     expect(config.FACTORY_MASTER_KEY).toBeUndefined();
     expect(config.DATABASE_URL).toBeUndefined();
   });
+
+  it("defaults CORS to the local web origins", () => {
+    expect(loadConfig({}).CORS_ORIGINS).toBe("http://localhost:3000,http://127.0.0.1:3000");
+  });
 });
