@@ -7,6 +7,7 @@ export {
   InMemoryProjectRepository,
   InMemoryWorkflowRepository,
 } from "./memory.js";
+export { InMemorySessionStore, PostgresSessionStore } from "./session-store.js";
 export {
   PostgresApprovalRepository,
   PostgresArtifactRepository,
@@ -30,6 +31,8 @@ export {
   artifacts,
   githubInstallations,
   projects,
+  sessionEvents,
+  sessions,
   workflowRuns,
   workflowStages,
 } from "./schema.js";

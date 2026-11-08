@@ -66,4 +66,27 @@ describe("session routes", () => {
     expect(response.statusCode).toBe(404);
     await app.close();
   });
+
+  it("streams existing events as SSE", async () => {
+    const deps = makeDeps();
+    const projectId = await seedProject(deps);
+    const app = buildServer({ deps });
+    const started = await app.inject({
+      method: "POST",
+      url: `/projects/${projectId}/sessions`,
+      payload: { stage: "apply", prompt: "x" },
+    });
+    const session = started.json() as { id: string };
+    await deps.agentRuntime.appendEvent(session.id, "message", { text: "hola" });
+
+    const stream = await app.inject({
+      method: "GET",
+      url: `/sessions/${session.id}/events/stream?once=1`,
+    });
+
+    expect(stream.statusCode).toBe(200);
+    expect(stream.headers["content-type"]).toContain("text/event-stream");
+    expect(stream.body).toContain("message");
+    await app.close();
+  });
 });

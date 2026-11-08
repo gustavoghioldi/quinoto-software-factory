@@ -5,6 +5,7 @@ import {
   InMemoryArtifactRepository,
   InMemoryGitHubInstallationRepository,
   InMemoryProjectRepository,
+  InMemorySessionStore,
   InMemoryWorkflowRepository,
 } from "@factory/db";
 import type { ApiDependencies, GitHubService } from "../src/deps.js";
@@ -52,7 +53,10 @@ export function makeDeps(overrides: Partial<GitHubService> = {}): TestDeps {
       artifacts: artifactRepository,
       approvals: approvalRepository,
     }),
-    agentRuntime: createAgentRuntime({ railway: new MockRailwayClient() }),
+    agentRuntime: createAgentRuntime({
+      railway: new MockRailwayClient(),
+      store: new InMemorySessionStore(),
+    }),
     manifest: {
       name: "Quinoto Software Factory",
       baseUrl: "https://factory.example.com",

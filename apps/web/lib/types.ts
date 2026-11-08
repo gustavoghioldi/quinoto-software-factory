@@ -42,3 +42,23 @@ export interface Approval {
   scope: string;
   rationale: string;
 }
+
+export interface AgentSession {
+  id: string;
+  projectId: string;
+  stage: string;
+  prompt: string;
+  status: string;
+  runnerServiceId: string | null;
+  startedAt: string;
+  endedAt: string | null;
+  maxMinutes: number;
+}
+
+export interface SessionEvent {
+  id: number;
+  sessionId: string;
+  type: string;
+  payload: unknown;
+  createdAt: string;
+}

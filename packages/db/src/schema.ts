@@ -1,4 +1,4 @@
-import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { bigserial, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const githubInstallations = pgTable("github_installations", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -72,4 +72,28 @@ export const approvals = pgTable("approvals", {
   decidedAt: timestamp("decided_at", { withTimezone: true }).defaultNow().notNull(),
   scope: text("scope").notNull(),
   rationale: text("rationale").notNull(),
+});
+
+export const sessions = pgTable("sessions", {
+  id: uuid("id").primaryKey(),
+  projectId: uuid("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  stage: text("stage").notNull(),
+  prompt: text("prompt").notNull(),
+  status: text("status").notNull(),
+  runnerServiceId: text("runner_service_id"),
+  startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+  endedAt: timestamp("ended_at", { withTimezone: true }),
+  maxMinutes: integer("max_minutes").notNull().default(30),
+});
+
+export const sessionEvents = pgTable("session_events", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  sessionId: uuid("session_id")
+    .notNull()
+    .references(() => sessions.id, { onDelete: "cascade" }),
+  type: text("type").notNull(),
+  payload: jsonb("payload").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

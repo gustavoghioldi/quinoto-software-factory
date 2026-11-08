@@ -74,10 +74,12 @@
 
 | Verificación | Comando | Resultado |
 |---|---|---|
-| Tests | `pnpm test` | 80 tests OK (core 31, github 13, railway 4, api 32) |
+| Tests | `pnpm test` | 81 tests OK (core 31, github 13, railway 4, api 33) |
 | Typecheck | `pnpm typecheck` | 12/12 tareas OK |
 | Lint | `pnpm lint` | 8/8 tareas OK |
 | Build | `pnpm build` | 8/8 tareas OK |
+| Migración | `docker compose logs migrate` | `migrations applied` (0000–0002) |
+| UI | `curl /sessions/:id` | “Sesión de agente” |
 
-**Completadas:** `TSK-044`, `TSK-046`, `TSK-048`, `TSK-049`, `TSK-053`, `TSK-054` (6/11).
-**Pendientes:** `TSK-045` (imagen runner), `TSK-047` (DB de sesiones), `TSK-050`/`TSK-052` (SSE) y `TSK-051` (visor de sesión).
+**Completadas:** `TSK-044` a `TSK-054` (**11/11**). F3 cerrado.
+**Nota:** sin `RAILWAY_API_TOKEN` se usa el mock; las sesiones persisten en Postgres.

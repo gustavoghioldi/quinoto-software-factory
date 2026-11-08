@@ -61,6 +61,15 @@ export function WorkflowPanel({ project }: { project: Project }) {
       await api.advanceWorkflow(project.id, "user_stories");
     });
 
+  const startSession = () =>
+    run(async () => {
+      const session = await api.startSession(project.id, {
+        stage: workflow?.currentStage ?? "apply",
+        prompt: `Continuar el workflow en la etapa ${workflow?.currentStage ?? "apply"}`,
+      });
+      window.location.href = `/sessions/${session.id}`;
+    });
+
   return (
     <section style={{ display: "grid", gap: "1rem" }}>
       <div style={{ border: "1px solid #e0e0e0", borderRadius: 8, padding: "1rem" }}>
@@ -123,6 +132,9 @@ export function WorkflowPanel({ project }: { project: Project }) {
                 Reintentar etapa
               </button>
             ) : null}
+            <button onClick={startSession} disabled={busy} style={secondaryButtonStyle}>
+              Iniciar sesión de agente
+            </button>
           </div>
         </div>
       ) : null}

@@ -35,5 +35,6 @@ export type {
   StageStatus,
   WorkflowRun,
 } from "./workflow.js";
+export type { AgentSession, SessionEvent, SessionStatus, SessionStore } from "./sessions.js";
 export { EncryptedMemorySecretStore } from "./secrets.js";
 export type { SecretStore } from "./secrets.js";

@@ -15,6 +15,13 @@
       "when": 1794120651687,
       "tag": "0001_orange_union_jack",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794122737229,
+      "tag": "0002_sturdy_the_stranger",
+      "breakpoints": true
     }
   ]
 }

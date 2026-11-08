@@ -62,4 +62,51 @@ export async function registerSessionRoutes(
     }
     return { events: await deps.agentRuntime.events(id) };
   });
+
+  app.get("/sessions/:id/events/stream", async (request, reply) => {
+    const id = (request.params as { id: string }).id;
+    const session = await deps.agentRuntime.get(id);
+    if (!session) {
+      return reply.code(404).send({ error: "session_not_found" });
+    }
+
+    const query = request.query as { once?: string };
+    const header = request.headers["last-event-id"];
+    const parsed = Number(Array.isArray(header) ? header[0] : header);
+    let lastId = Number.isFinite(parsed) ? parsed : 0;
+
+    reply.hijack();
+    reply.raw.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    });
+
+    const flush = async () => {
+      const events = await deps.agentRuntime.events(id);
+      for (const event of events) {
+        if (event.id <= lastId) {
+          continue;
+        }
+        lastId = event.id;
+        reply.raw.write(`id: ${event.id}\ndata: ${JSON.stringify(event)}\n\n`);
+      }
+    };
+
+    await flush();
+
+    if (query.once === "1") {
+      reply.raw.end();
+      return;
+    }
+
+    const interval = setInterval(() => {
+      void flush();
+    }, 1000);
+
+    request.raw.on("close", () => {
+      clearInterval(interval);
+      reply.raw.end();
+    });
+  });
 }

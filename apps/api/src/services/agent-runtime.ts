@@ -1,28 +1,8 @@
 import { randomUUID } from "node:crypto";
 import type { RailwayClient } from "@factory/adapters-railway";
+import type { AgentSession, SessionEvent, SessionStatus, SessionStore } from "@factory/core";
 
-export type SessionStatus =
-  "provisioning" | "running" | "cancelled" | "completed" | "failed" | "timed_out";
-
-export interface AgentSession {
-  id: string;
-  projectId: string;
-  stage: string;
-  prompt: string;
-  status: SessionStatus;
-  runnerServiceId: string | null;
-  startedAt: string;
-  endedAt: string | null;
-  maxMinutes: number;
-}
-
-export interface SessionEvent {
-  id: number;
-  sessionId: string;
-  type: string;
-  payload: unknown;
-  createdAt: string;
-}
+export type { AgentSession, SessionEvent, SessionStatus } from "@factory/core";
 
 export interface StartSessionInput {
   projectId: string;
@@ -55,16 +35,14 @@ export class SessionError extends Error {
 
 export interface AgentRuntimeOptions {
   railway: RailwayClient;
+  store: SessionStore;
   image?: string;
   now?: () => Date;
 }
 
 export function createAgentRuntime(options: AgentRuntimeOptions): AgentRuntime {
-  const sessions = new Map<string, AgentSession>();
-  const events = new Map<string, SessionEvent[]>();
   const now = options.now ?? (() => new Date());
   const image = options.image ?? "ghcr.io/quinoto/factory-runner:latest";
-  let nextEventId = 1;
 
   function isActive(session: AgentSession): boolean {
     return session.status === "running" || session.status === "provisioning";
@@ -76,6 +54,7 @@ export function createAgentRuntime(options: AgentRuntimeOptions): AgentRuntime {
     }
     session.status = status;
     session.endedAt = now().toISOString();
+    await options.store.update(session);
     return session;
   }
 
@@ -92,8 +71,7 @@ export function createAgentRuntime(options: AgentRuntimeOptions): AgentRuntime {
         endedAt: null,
         maxMinutes: input.maxMinutes ?? 30,
       };
-      sessions.set(session.id, session);
-      events.set(session.id, []);
+      await options.store.create(session);
 
       try {
         const runner = await options.railway.createRunner({
@@ -109,20 +87,20 @@ export function createAgentRuntime(options: AgentRuntimeOptions): AgentRuntime {
         });
         session.runnerServiceId = runner.serviceId;
         session.status = runner.status === "healthy" ? "running" : "provisioning";
+        await options.store.update(session);
         return session;
       } catch (error) {
         session.status = "failed";
         session.endedAt = now().toISOString();
+        await options.store.update(session);
         throw error;
       }
     },
 
-    async get(sessionId: string): Promise<AgentSession | null> {
-      return sessions.get(sessionId) ?? null;
-    },
+    get: (sessionId: string) => options.store.get(sessionId),
 
     async cancel(sessionId: string): Promise<AgentSession> {
-      const session = sessions.get(sessionId);
+      const session = await options.store.get(sessionId);
       if (!session) {
         throw new SessionError("session_not_found", "session not found");
       }
@@ -132,32 +110,20 @@ export function createAgentRuntime(options: AgentRuntimeOptions): AgentRuntime {
       return terminate(session, "cancelled");
     },
 
-    async events(sessionId: string): Promise<SessionEvent[]> {
-      return events.get(sessionId) ?? [];
-    },
+    events: (sessionId: string) => options.store.events(sessionId),
 
     async appendEvent(sessionId: string, type: string, payload: unknown): Promise<SessionEvent> {
-      const list = events.get(sessionId);
-      if (!list) {
+      const session = await options.store.get(sessionId);
+      if (!session) {
         throw new SessionError("session_not_found", "session not found");
       }
-      const event: SessionEvent = {
-        id: nextEventId++,
-        sessionId,
-        type,
-        payload,
-        createdAt: now().toISOString(),
-      };
-      list.push(event);
-      return event;
+      return options.store.appendEvent({ sessionId, type, payload });
     },
 
     async reconcileTimeouts(at = now()): Promise<string[]> {
+      const active = await options.store.listActive();
       const timedOut: string[] = [];
-      for (const session of sessions.values()) {
-        if (!isActive(session)) {
-          continue;
-        }
+      for (const session of active) {
         const ageMinutes = (at.getTime() - Date.parse(session.startedAt)) / 60_000;
         if (ageMinutes >= session.maxMinutes) {
           await terminate(session, "timed_out");
@@ -168,12 +134,13 @@ export function createAgentRuntime(options: AgentRuntimeOptions): AgentRuntime {
     },
 
     async reconcileOrphans(): Promise<string[]> {
-      const runners = await options.railway.listRunners();
+      const active = await options.store.listActive();
       const activeRunners = new Set(
-        [...sessions.values()]
-          .filter((session) => isActive(session) && session.runnerServiceId)
+        active
+          .filter((session) => session.runnerServiceId)
           .map((session) => session.runnerServiceId as string),
       );
+      const runners = await options.railway.listRunners();
       const orphans = runners.filter((runner) => !activeRunners.has(runner.serviceId));
       for (const runner of orphans) {
         await options.railway.deleteRunner(runner.serviceId);
