@@ -97,3 +97,26 @@ export interface RailwayLinkRepository {
     deployment: { id: string; status: string; url: string | null },
   ): Promise<void>;
 }
+
+export interface AuditEntry {
+  id: number;
+  projectId: string | null;
+  actor: string;
+  action: string;
+  subject: string;
+  detail: unknown;
+  createdAt: string;
+}
+
+export interface NewAuditEntry {
+  projectId: string | null;
+  actor: string;
+  action: string;
+  subject: string;
+  detail?: unknown;
+}
+
+export interface AuditRepository {
+  append(entry: NewAuditEntry): Promise<AuditEntry>;
+  listByProject(projectId: string): Promise<AuditEntry[]>;
+}

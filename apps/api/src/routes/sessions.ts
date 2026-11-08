@@ -43,7 +43,15 @@ export async function registerSessionRoutes(
 
   app.post("/sessions/:id/cancel", async (request, reply) => {
     try {
-      return await deps.agentRuntime.cancel((request.params as { id: string }).id);
+      const session = await deps.agentRuntime.cancel((request.params as { id: string }).id);
+      await deps.audit.record({
+        projectId: session.projectId,
+        actor: "operator",
+        action: "session.cancelled",
+        subject: session.id,
+        detail: { status: session.status },
+      });
+      return session;
     } catch (error) {
       if (error instanceof SessionError) {
         return reply

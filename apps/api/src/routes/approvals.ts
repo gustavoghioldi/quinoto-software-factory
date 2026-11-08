@@ -52,6 +52,13 @@ export async function registerApprovalRoutes(
       scope: body.scope,
       rationale: body.rationale,
     });
+    await deps.audit.record({
+      projectId: body.projectId,
+      actor: body.decidedBy,
+      action: "approval.created",
+      subject: body.subject,
+      detail: { decision: body.decision, scope: body.scope },
+    });
     return reply.code(201).send(approval);
   });
 }

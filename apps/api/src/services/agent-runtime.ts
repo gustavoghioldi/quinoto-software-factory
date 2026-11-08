@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { RailwayClient } from "@factory/adapters-railway";
 import type { AgentSession, SessionEvent, SessionStatus, SessionStore } from "@factory/core";
+import { redactValue } from "@factory/core";
 
 export type { AgentSession, SessionEvent, SessionStatus } from "@factory/core";
 
@@ -120,7 +121,7 @@ export function createAgentRuntime(options: AgentRuntimeOptions): AgentRuntime {
       if (!session) {
         throw new SessionError("session_not_found", "session not found");
       }
-      return options.store.appendEvent({ sessionId, type, payload });
+      return options.store.appendEvent({ sessionId, type, payload: redactValue(payload) });
     },
 
     async reconcileTimeouts(at = now()): Promise<string[]> {

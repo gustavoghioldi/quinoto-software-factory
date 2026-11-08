@@ -3,6 +3,7 @@ export type { Database } from "./client.js";
 export {
   InMemoryApprovalRepository,
   InMemoryArtifactRepository,
+  InMemoryAuditRepository,
   InMemoryGitHubInstallationRepository,
   InMemoryProjectRepository,
   InMemoryRailwayLinkRepository,
@@ -12,6 +13,7 @@ export { InMemorySessionStore, PostgresSessionStore } from "./session-store.js";
 export {
   PostgresApprovalRepository,
   PostgresArtifactRepository,
+  PostgresAuditRepository,
   PostgresGitHubInstallationRepository,
   PostgresProjectRepository,
   PostgresRailwayLinkRepository,
@@ -20,8 +22,11 @@ export {
 export type {
   ApprovalRepository,
   ArtifactRepository,
+  AuditEntry,
+  AuditRepository,
   GitHubInstallationRecord,
   GitHubInstallationRepository,
+  NewAuditEntry,
   NewGitHubInstallation,
   NewProject,
   NewRailwayLink,
@@ -34,6 +39,7 @@ export type {
 export {
   approvals,
   artifacts,
+  auditEntries,
   githubInstallations,
   projects,
   railwayLinks,

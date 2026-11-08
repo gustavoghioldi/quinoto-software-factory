@@ -6,8 +6,8 @@ desde una UI: conectás un repositorio de GitHub, corrés el workflow
 discovery → propuesta → user stories → tareas → apply con agentes, ves los logs en vivo y
 entregás cada cambio como un Pull Request. Opcionalmente deploya en Railway.
 
-> Estado: **F0 — fundaciones**. El esqueleto del monorepo, la API, la UI, el worker y la
-> infraestructura base están en construcción. Las funcionalidades de producto llegan en F1+.
+> Estado: **MVP v1 completo (F0–F6)**. Incluye GitHub, proyectos, workflow, sesiones de agente,
+> diff/PR, deploy en Railway, dashboard multi-proyecto y hardening.
 
 ## Stack
 
@@ -87,3 +87,8 @@ infra/       Docker Compose y Dockerfiles
 
 Quinoto Software Factory se distribuye bajo **GNU Affero General Public License v3.0**.
 Ver [LICENSE](./LICENSE).
+
+## Operación
+
+- [Operación self-hosted](docs/operations.md)
+- [Release checklist](docs/release-checklist.md)

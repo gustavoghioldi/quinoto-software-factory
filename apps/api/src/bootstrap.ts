@@ -12,6 +12,7 @@ import {
   createDatabase,
   InMemoryApprovalRepository,
   InMemoryArtifactRepository,
+  InMemoryAuditRepository,
   InMemoryGitHubInstallationRepository,
   InMemoryProjectRepository,
   InMemoryRailwayLinkRepository,
@@ -19,6 +20,7 @@ import {
   InMemoryWorkflowRepository,
   PostgresApprovalRepository,
   PostgresArtifactRepository,
+  PostgresAuditRepository,
   PostgresGitHubInstallationRepository,
   PostgresProjectRepository,
   PostgresRailwayLinkRepository,
@@ -26,6 +28,7 @@ import {
   PostgresWorkflowRepository,
   type ApprovalRepository,
   type ArtifactRepository,
+  type AuditRepository,
   type GitHubInstallationRepository,
   type ProjectRepository,
   type RailwayLinkRepository,
@@ -33,6 +36,7 @@ import {
 } from "@factory/db";
 import type { ApiDependencies, GitHubService } from "./deps.js";
 import { createAgentRuntime } from "./services/agent-runtime.js";
+import { createAuditService } from "./services/audit-service.js";
 import { createWorkflowService } from "./services/workflow-service.js";
 
 function resolveCipher(config: AppConfig): SecretCipher {
@@ -57,6 +61,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
   let artifactRepository: ArtifactRepository;
   let approvalRepository: ApprovalRepository;
   let railwayLinkRepository: RailwayLinkRepository;
+  let auditRepository: AuditRepository;
   let sessionStore: InMemorySessionStore | PostgresSessionStore;
 
   if (config.DATABASE_URL) {
@@ -67,6 +72,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     artifactRepository = new PostgresArtifactRepository(db);
     approvalRepository = new PostgresApprovalRepository(db);
     railwayLinkRepository = new PostgresRailwayLinkRepository(db);
+    auditRepository = new PostgresAuditRepository(db);
     sessionStore = new PostgresSessionStore(db);
   } else {
     installations = new InMemoryGitHubInstallationRepository();
@@ -75,6 +81,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     artifactRepository = new InMemoryArtifactRepository();
     approvalRepository = new InMemoryApprovalRepository();
     railwayLinkRepository = new InMemoryRailwayLinkRepository();
+    auditRepository = new InMemoryAuditRepository();
     sessionStore = new InMemorySessionStore();
   }
 
@@ -92,6 +99,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     store: sessionStore,
     image: config.RAILWAY_RUNNER_IMAGE,
   });
+  const audit = createAuditService(auditRepository);
 
   const providerCache = new Map<string, ReturnType<typeof createInstallationTokenProvider>>();
 
@@ -136,6 +144,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     github,
     workflows,
     agentRuntime,
+    audit,
     manifest: {
       name: config.GITHUB_APP_NAME,
       baseUrl: config.FACTORY_BASE_URL,

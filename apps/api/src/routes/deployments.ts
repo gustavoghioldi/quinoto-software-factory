@@ -29,6 +29,13 @@ export async function registerDeploymentRoutes(
       serviceId: body.serviceId,
       environmentId: body.environmentId,
     });
+    await deps.audit.record({
+      projectId: id,
+      actor: "operator",
+      action: "railway.linked",
+      subject: body.railwayProjectId,
+      detail: { serviceId: body.serviceId, environmentId: body.environmentId },
+    });
     return reply.code(201).send(link);
   });
 
@@ -57,6 +64,13 @@ export async function registerDeploymentRoutes(
       id: deployment.id,
       status: deployment.status,
       url: deployment.url,
+    });
+    await deps.audit.record({
+      projectId: id,
+      actor: "operator",
+      action: "deploy.triggered",
+      subject: deployment.id,
+      detail: { status: deployment.status },
     });
     return reply.code(201).send(deployment);
   });

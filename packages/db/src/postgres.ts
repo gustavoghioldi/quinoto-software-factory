@@ -11,8 +11,11 @@ import type { Database } from "./client.js";
 import type {
   ApprovalRepository,
   ArtifactRepository,
+  AuditEntry,
+  AuditRepository,
   GitHubInstallationRecord,
   GitHubInstallationRepository,
+  NewAuditEntry,
   NewGitHubInstallation,
   NewProject,
   NewRailwayLink,
@@ -25,6 +28,7 @@ import type {
 import {
   approvals,
   artifacts,
+  auditEntries,
   githubInstallations,
   projects,
   railwayLinks,
@@ -274,5 +278,51 @@ export class PostgresRailwayLinkRepository implements RailwayLinkRepository {
         updatedAt: new Date(),
       })
       .where(eq(railwayLinks.projectId, projectId));
+  }
+}
+
+export class PostgresAuditRepository implements AuditRepository {
+  constructor(private readonly db: Database) {}
+
+  async append(entry: NewAuditEntry): Promise<AuditEntry> {
+    const [row] = await this.db
+      .insert(auditEntries)
+      .values({
+        projectId: entry.projectId,
+        actor: entry.actor,
+        action: entry.action,
+        subject: entry.subject,
+        detail: entry.detail ?? null,
+      })
+      .returning();
+    if (!row) {
+      throw new Error("failed to append audit entry");
+    }
+    return {
+      id: row.id,
+      projectId: row.projectId,
+      actor: row.actor,
+      action: row.action,
+      subject: row.subject,
+      detail: row.detail,
+      createdAt: row.createdAt.toISOString(),
+    };
+  }
+
+  async listByProject(projectId: string): Promise<AuditEntry[]> {
+    const rows = await this.db
+      .select()
+      .from(auditEntries)
+      .where(eq(auditEntries.projectId, projectId))
+      .orderBy(desc(auditEntries.id));
+    return rows.map((row) => ({
+      id: row.id,
+      projectId: row.projectId,
+      actor: row.actor,
+      action: row.action,
+      subject: row.subject,
+      detail: row.detail,
+      createdAt: row.createdAt.toISOString(),
+    }));
   }
 }
