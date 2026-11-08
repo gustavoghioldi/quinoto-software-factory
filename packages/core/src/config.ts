@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseMasterKey } from "./crypto.js";
 
 const booleanFromString = z
   .enum(["true", "false"])
@@ -8,12 +9,24 @@ const booleanFromString = z
 const emptyToUndefined = (value: unknown): unknown =>
   typeof value === "string" && value.trim() === "" ? undefined : value;
 
+const masterKeySchema = z.string().refine(
+  (value) => {
+    try {
+      parseMasterKey(value);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  { message: "must be a 32-byte base64 key" },
+);
+
 export const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().max(65535).default(4000),
   DATABASE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
   REDIS_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
-  FACTORY_MASTER_KEY: z.preprocess(emptyToUndefined, z.string().min(32).optional()),
+  FACTORY_MASTER_KEY: z.preprocess(emptyToUndefined, masterKeySchema.optional()),
   MAX_SESSION_MINUTES: z.coerce.number().int().positive().default(30),
   MAX_SESSIONS_PER_PROJECT: z.coerce.number().int().positive().default(1),
   CORS_ORIGINS: z.string().default("http://localhost:3000,http://127.0.0.1:3000"),

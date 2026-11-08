@@ -40,3 +40,15 @@
 | Branch protection | `gh api .../branches/main/protection` | required `quality`, strict, enforce_admins=true |
 
 **F0 completo: 15/15 tareas verificadas.** Repo: https://github.com/gustavoghioldi/quinoto-software-factory
+
+## Evidencia F1 (parcial, 2026-11-08)
+
+| Verificación | Comando | Resultado |
+|---|---|---|
+| Tests | `pnpm test` | 37 tests OK (core 20, adapter 11, api 6) |
+| Typecheck | `pnpm typecheck` | 7/7 tareas OK |
+| Lint | `pnpm lint` | 6/6 tareas OK |
+| Build | `pnpm build` | 6/6 tareas OK |
+
+**Completadas:** `TSK-017`, `TSK-019`, `TSK-021`, `TSK-028`, `TSK-029`, `TSK-030`, `TSK-031`.
+**Pendientes:** `TSK-016`, `TSK-018`, `TSK-020` y `TSK-022` a `TSK-027` (DB, callback, endpoints y UI).
