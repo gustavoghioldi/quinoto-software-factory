@@ -1,12 +1,12 @@
 schema_version: 1
 project:
   name: "quinoto-software-factory"
-  stack: "not configured"
-  language: "not configured"
+  stack: "TypeScript monorepo (pnpm + Turborepo)"
+  language: "TypeScript"
 context:
-  tech_stack: "Greenfield — stack a definir en la propuesta técnica derivada de PRD-0001"
+  tech_stack: "Next.js 15, React 19, Fastify 5, PostgreSQL 16, Redis 7, Docker Compose"
   conventions: "Proposal First, Context Slicing, TDD, Verify Before Done"
-  testing: "not configured"
+  testing: "Vitest (unit/integration), Playwright (e2e, F4)"
 workflows:
   active:
     - constitution

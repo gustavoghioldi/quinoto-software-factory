@@ -1,11 +1,11 @@
 # Guía para Agentes QuinotoSpec — quinoto-software-factory
 
 > **Proyecto:** quinoto-software-factory
-> **Stack:** not configured
-> **Lenguaje:** not configured
-> **Tech stack:** Greenfield — stack a definir en la propuesta técnica derivada de PRD-0001
+> **Stack:** TypeScript monorepo (pnpm + Turborepo)
+> **Lenguaje:** TypeScript
+> **Tech stack:** Next.js 15, React 19, Fastify 5, PostgreSQL 16, Redis 7, Docker Compose
 > **Convenciones:** Proposal First, Context Slicing, TDD, Verify Before Done
-> **Testing:** not configured
+> **Testing:** Vitest (unit/integration), Playwright (e2e, F4)
 > **Reglas:** standard
 > **Generado desde:** `.quinoto-spec/config.yaml`
 
@@ -118,6 +118,7 @@
 - `/quinotospec-tdd`
 - `/quinotospec-template-resolver`
 - `/quinotospec-tiwaz-rune`
+- `/quinotospec-ui`
 - `/quinotospec-update-agents`
 - `/quinotospec-update-changelog`
 - `/quinotospec-validate`
