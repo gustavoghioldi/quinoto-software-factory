@@ -13,11 +13,13 @@ import {
   InMemoryArtifactRepository,
   InMemoryGitHubInstallationRepository,
   InMemoryProjectRepository,
+  InMemorySessionStore,
   InMemoryWorkflowRepository,
   PostgresApprovalRepository,
   PostgresArtifactRepository,
   PostgresGitHubInstallationRepository,
   PostgresProjectRepository,
+  PostgresSessionStore,
   PostgresWorkflowRepository,
   type ApprovalRepository,
   type ArtifactRepository,
@@ -50,6 +52,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
   let workflowRepository: WorkflowRepository;
   let artifactRepository: ArtifactRepository;
   let approvalRepository: ApprovalRepository;
+  let sessionStore: InMemorySessionStore | PostgresSessionStore;
 
   if (config.DATABASE_URL) {
     const { db } = createDatabase(config.DATABASE_URL);
@@ -58,12 +61,14 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     workflowRepository = new PostgresWorkflowRepository(db);
     artifactRepository = new PostgresArtifactRepository(db);
     approvalRepository = new PostgresApprovalRepository(db);
+    sessionStore = new PostgresSessionStore(db);
   } else {
     installations = new InMemoryGitHubInstallationRepository();
     projects = new InMemoryProjectRepository();
     workflowRepository = new InMemoryWorkflowRepository();
     artifactRepository = new InMemoryArtifactRepository();
     approvalRepository = new InMemoryApprovalRepository();
+    sessionStore = new InMemorySessionStore();
   }
 
   const workflows = createWorkflowService({
@@ -77,6 +82,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     : new MockRailwayClient();
   const agentRuntime = createAgentRuntime({
     railway,
+    store: sessionStore,
     image: config.RAILWAY_RUNNER_IMAGE,
   });
 

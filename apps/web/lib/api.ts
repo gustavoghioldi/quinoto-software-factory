@@ -1,4 +1,4 @@
-import type { Approval, Project, Repository, Workflow } from "./types";
+import type { AgentSession, Approval, Project, Repository, SessionEvent, Workflow } from "./types";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -63,4 +63,18 @@ export const api = {
       method: "POST",
       body: JSON.stringify(input),
     }),
+  startSession: (
+    projectId: string,
+    input: { stage: string; prompt: string; maxMinutes?: number },
+  ) =>
+    request<AgentSession>(`/projects/${projectId}/sessions`, {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  getSession: (sessionId: string) => request<AgentSession>(`/sessions/${sessionId}`),
+  cancelSession: (sessionId: string) =>
+    request<AgentSession>(`/sessions/${sessionId}/cancel`, { method: "POST" }),
+  sessionEvents: (sessionId: string) =>
+    request<{ events: SessionEvent[] }>(`/sessions/${sessionId}/events`),
+  sessionEventsUrl: (sessionId: string) => `${apiUrl}/sessions/${sessionId}/events/stream`,
 };

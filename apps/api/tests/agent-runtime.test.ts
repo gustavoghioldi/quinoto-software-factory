@@ -1,11 +1,20 @@
 import { MockRailwayClient } from "@factory/adapters-railway";
+import { InMemorySessionStore } from "@factory/db";
 import { describe, expect, it } from "vitest";
 import { createAgentRuntime, SessionError } from "../src/services/agent-runtime.js";
+
+function makeRuntime(options: { railway?: MockRailwayClient; now?: () => Date } = {}) {
+  return createAgentRuntime({
+    railway: options.railway ?? new MockRailwayClient(),
+    store: new InMemorySessionStore(),
+    ...(options.now ? { now: options.now } : {}),
+  });
+}
 
 describe("agent runtime", () => {
   it("starts a session and provisions a runner", async () => {
     const railway = new MockRailwayClient();
-    const runtime = createAgentRuntime({ railway });
+    const runtime = makeRuntime({ railway });
     const session = await runtime.start({
       projectId: "p1",
       stage: "apply",
@@ -19,7 +28,7 @@ describe("agent runtime", () => {
 
   it("cancels a session and destroys the runner", async () => {
     const railway = new MockRailwayClient();
-    const runtime = createAgentRuntime({ railway });
+    const runtime = makeRuntime({ railway });
     const session = await runtime.start({ projectId: "p1", stage: "apply", prompt: "x" });
 
     const cancelled = await runtime.cancel(session.id);
@@ -29,12 +38,12 @@ describe("agent runtime", () => {
   });
 
   it("rejects cancelling an unknown session", async () => {
-    const runtime = createAgentRuntime({ railway: new MockRailwayClient() });
+    const runtime = makeRuntime();
     await expect(runtime.cancel("missing")).rejects.toBeInstanceOf(SessionError);
   });
 
   it("stores events in order", async () => {
-    const runtime = createAgentRuntime({ railway: new MockRailwayClient() });
+    const runtime = makeRuntime();
     const session = await runtime.start({ projectId: "p1", stage: "apply", prompt: "x" });
 
     await runtime.appendEvent(session.id, "message", { text: "hola" });
@@ -48,7 +57,7 @@ describe("agent runtime", () => {
   it("times out sessions past their limit", async () => {
     const railway = new MockRailwayClient();
     let current = new Date("2026-01-01T00:00:00Z");
-    const runtime = createAgentRuntime({ railway, now: () => current });
+    const runtime = makeRuntime({ railway, now: () => current });
     const session = await runtime.start({
       projectId: "p1",
       stage: "apply",
@@ -65,7 +74,7 @@ describe("agent runtime", () => {
 
   it("destroys orphan runners without an active session", async () => {
     const railway = new MockRailwayClient();
-    const runtime = createAgentRuntime({ railway });
+    const runtime = makeRuntime({ railway });
     await runtime.start({ projectId: "p1", stage: "apply", prompt: "x" });
     const orphan = await railway.createRunner({
       projectId: "p1",

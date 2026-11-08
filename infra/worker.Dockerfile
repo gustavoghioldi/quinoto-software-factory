@@ -11,6 +11,7 @@ COPY packages/core/package.json packages/core/
 COPY packages/ui/package.json packages/ui/
 COPY packages/db/package.json packages/db/
 COPY packages/adapters-github/package.json packages/adapters-github/
+COPY packages/adapters-railway/package.json packages/adapters-railway/
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
