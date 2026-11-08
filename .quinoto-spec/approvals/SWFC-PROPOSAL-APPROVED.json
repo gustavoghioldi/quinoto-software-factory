@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "approval_id": "SWFC-PROPOSAL-APPROVED",
+  "subject": ".quinoto-spec/proposals/2026-11-08-quinoto-software-factory-mvp/proposal.md",
+  "action": "approve-proposal",
+  "decision": "approved",
+  "requested_by": "agente (workflow create-proposal, sesión 2026-11-08)",
+  "decided_by": "barba (stakeholder y owner del proyecto)",
+  "rationale": "El stakeholder aprobó explícitamente la propuesta SWFC-f4c2 en la sesión del 2026-11-08 y pidió continuar con user stories y tareas.",
+  "scope": "Propuesta Quinoto Software Factory MVP (SWFC-f4c2): stack, arquitectura, alcance v1, 7 delta specs y plan de implementación de 7 fases.",
+  "decided_at": "2026-11-08T05:11:48+00:00"
+}
