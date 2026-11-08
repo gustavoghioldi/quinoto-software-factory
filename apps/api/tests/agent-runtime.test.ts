@@ -54,6 +54,18 @@ describe("agent runtime", () => {
     expect(events[0]?.payload).toEqual({ text: "hola" });
   });
 
+  it("redacts secrets in events", async () => {
+    const runtime = makeRuntime();
+    const session = await runtime.start({ projectId: "p1", stage: "apply", prompt: "x" });
+    await runtime.appendEvent(session.id, "message", {
+      token: "ghp_abcdefghijklmnopqrstuvwxyz123456",
+    });
+
+    const events = await runtime.events(session.id);
+    expect(JSON.stringify(events)).not.toContain("ghp_");
+    expect(JSON.stringify(events)).toContain("[REDACTED]");
+  });
+
   it("times out sessions past their limit", async () => {
     const railway = new MockRailwayClient();
     let current = new Date("2026-01-01T00:00:00Z");

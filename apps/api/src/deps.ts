@@ -12,6 +12,7 @@ import type {
 } from "@factory/db";
 import type { RailwayClient } from "@factory/adapters-railway";
 import type { AgentRuntime } from "./services/agent-runtime.js";
+import type { AuditService } from "./services/audit-service.js";
 import type { WorkflowService } from "./services/workflow-service.js";
 
 export interface GitHubService {
@@ -39,6 +40,7 @@ export interface ApiDependencies {
   github: GitHubService;
   workflows: WorkflowService;
   agentRuntime: AgentRuntime;
+  audit: AuditService;
   manifest: {
     name: string;
     baseUrl: string;

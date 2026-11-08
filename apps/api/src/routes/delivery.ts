@@ -73,6 +73,13 @@ export async function registerDeliveryRoutes(
         number: pullRequest.number,
         url: pullRequest.url,
       });
+      await deps.audit.record({
+        projectId: project.id,
+        actor: "factory",
+        action: "pull_request.opened",
+        subject: head,
+        detail: { number: pullRequest.number, url: pullRequest.url },
+      });
 
       return reply.code(201).send(pullRequest);
     } catch (error) {

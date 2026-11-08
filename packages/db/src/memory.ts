@@ -3,8 +3,11 @@ import type { ApprovalRecord, ArtifactRecord, WorkflowRun } from "@factory/core"
 import type {
   ApprovalRepository,
   ArtifactRepository,
+  AuditEntry,
+  AuditRepository,
   GitHubInstallationRecord,
   GitHubInstallationRepository,
+  NewAuditEntry,
   NewGitHubInstallation,
   NewProject,
   NewRailwayLink,
@@ -151,5 +154,25 @@ export class InMemoryRailwayLinkRepository implements RailwayLinkRepository {
     existing.lastDeployStatus = deployment.status;
     existing.lastDeployUrl = deployment.url;
     existing.updatedAt = new Date();
+  }
+}
+
+export class InMemoryAuditRepository implements AuditRepository {
+  private readonly entries: AuditEntry[] = [];
+  private nextId = 1;
+
+  async append(entry: NewAuditEntry): Promise<AuditEntry> {
+    const record: AuditEntry = {
+      ...entry,
+      detail: entry.detail ?? null,
+      id: this.nextId++,
+      createdAt: new Date().toISOString(),
+    };
+    this.entries.push(record);
+    return record;
+  }
+
+  async listByProject(projectId: string): Promise<AuditEntry[]> {
+    return this.entries.filter((entry) => entry.projectId === projectId);
   }
 }

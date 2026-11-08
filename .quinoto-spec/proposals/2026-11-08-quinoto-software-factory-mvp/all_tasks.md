@@ -109,3 +109,18 @@
 | UI | `curl /projects/:id` | “Proyecto”, “Railway” |
 
 **Completadas:** `TSK-063` a `TSK-070` (**8/8**). F5 cerrado.
+
+## Evidencia F6 (2026-11-08)
+
+| Verificación | Comando | Resultado |
+|---|---|---|
+| Tests | `pnpm test` | 102 tests OK (core 35, github 17, railway 7, api 43) |
+| Typecheck | `pnpm typecheck` | 12/12 tareas OK |
+| Lint | `pnpm lint` | 8/8 tareas OK |
+| Build | `pnpm build` | 8/8 tareas OK |
+| Licencias | `./scripts/license-audit.sh` | `License audit passed` |
+| Migración | `docker compose logs migrate` | `migrations applied` (0000–0004) |
+| API | `curl /audit` | `{"entries":[]}` |
+
+**Completadas:** `TSK-071` a `TSK-078` (**8/8**). F6 cerrado.
+**MVP v1 completo: F0–F6.**

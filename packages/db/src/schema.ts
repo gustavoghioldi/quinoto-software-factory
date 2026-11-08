@@ -113,3 +113,13 @@ export const railwayLinks = pgTable("railway_links", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const auditEntries = pgTable("audit_entries", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "cascade" }),
+  actor: text("actor").notNull(),
+  action: text("action").notNull(),
+  subject: text("subject").notNull(),
+  detail: jsonb("detail"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
