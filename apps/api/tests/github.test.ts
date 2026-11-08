@@ -54,4 +54,16 @@ describe("github routes", () => {
     expect(response.statusCode).toBe(409);
     await app.close();
   });
+
+  it("rejects a non-public base URL with a clear error", async () => {
+    const deps = makeDeps();
+    deps.manifest = { name: "Quinoto Software Factory", baseUrl: "http://localhost:4000" };
+    const app = buildServer({ deps });
+
+    const response = await app.inject({ method: "GET", url: "/github/manifest" });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toMatchObject({ error: "public_url_required" });
+    await app.close();
+  });
 });
