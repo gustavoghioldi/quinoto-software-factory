@@ -20,6 +20,7 @@
     "db:migrate": "tsx src/migrate.ts"
   },
   "dependencies": {
+    "@factory/core": "workspace:*",
     "drizzle-orm": "^0.38.3",
     "pg": "^8.13.1"
   },

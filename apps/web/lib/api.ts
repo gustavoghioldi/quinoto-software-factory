@@ -1,4 +1,4 @@
-import type { Project, Repository } from "./types";
+import type { Approval, Project, Repository, Workflow } from "./types";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -39,4 +39,28 @@ export const api = {
       body: JSON.stringify(input),
     }),
   getManifest: () => request<Record<string, unknown>>("/github/manifest"),
+  getWorkflow: (projectId: string) => request<Workflow>(`/projects/${projectId}/workflow`),
+  startWorkflow: (projectId: string) =>
+    request<Workflow>(`/projects/${projectId}/workflow/start`, { method: "POST" }),
+  advanceWorkflow: (projectId: string, target: string) =>
+    request<Workflow>(`/projects/${projectId}/workflow/advance`, {
+      method: "POST",
+      body: JSON.stringify({ target }),
+    }),
+  retryWorkflow: (projectId: string) =>
+    request<Workflow>(`/projects/${projectId}/workflow/retry`, { method: "POST" }),
+  listApprovals: (projectId: string) =>
+    request<{ approvals: Approval[] }>(`/approvals?projectId=${encodeURIComponent(projectId)}`),
+  createApproval: (input: {
+    projectId: string;
+    subject: string;
+    decision: "approved" | "rejected";
+    decidedBy: string;
+    scope: string;
+    rationale: string;
+  }) =>
+    request<Approval>("/approvals", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
 };

@@ -1,10 +1,23 @@
 import { AesSecretCipher } from "@factory/core";
-import { InMemoryGitHubInstallationRepository, InMemoryProjectRepository } from "@factory/db";
+import {
+  InMemoryApprovalRepository,
+  InMemoryArtifactRepository,
+  InMemoryGitHubInstallationRepository,
+  InMemoryProjectRepository,
+  InMemoryWorkflowRepository,
+} from "@factory/db";
 import type { ApiDependencies, GitHubService } from "../src/deps.js";
+import { createWorkflowService } from "../src/services/workflow-service.js";
 
 export const masterKey = Buffer.alloc(32, 1).toString("base64");
 
-export function makeDeps(overrides: Partial<GitHubService> = {}): ApiDependencies {
+export interface TestDeps extends ApiDependencies {
+  workflowRepository: InMemoryWorkflowRepository;
+  artifactRepository: InMemoryArtifactRepository;
+  approvalRepository: InMemoryApprovalRepository;
+}
+
+export function makeDeps(overrides: Partial<GitHubService> = {}): TestDeps {
   const github: GitHubService = {
     exchangeManifestCode: async () => ({
       appId: "123",
@@ -23,15 +36,27 @@ export function makeDeps(overrides: Partial<GitHubService> = {}): ApiDependencie
     ...overrides,
   };
 
+  const workflowRepository = new InMemoryWorkflowRepository();
+  const artifactRepository = new InMemoryArtifactRepository();
+  const approvalRepository = new InMemoryApprovalRepository();
+
   return {
     installations: new InMemoryGitHubInstallationRepository(),
     projects: new InMemoryProjectRepository(),
     cipher: new AesSecretCipher({ FACTORY_MASTER_KEY: masterKey }),
     github,
+    workflows: createWorkflowService({
+      workflows: workflowRepository,
+      artifacts: artifactRepository,
+      approvals: approvalRepository,
+    }),
     manifest: {
       name: "Quinoto Software Factory",
       baseUrl: "https://factory.example.com",
     },
+    workflowRepository,
+    artifactRepository,
+    approvalRepository,
   };
 }
 

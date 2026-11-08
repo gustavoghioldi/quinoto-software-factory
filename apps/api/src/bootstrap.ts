@@ -8,14 +8,24 @@ import {
 import { AesSecretCipher, ConfigError, type AppConfig, type SecretCipher } from "@factory/core";
 import {
   createDatabase,
+  InMemoryApprovalRepository,
+  InMemoryArtifactRepository,
   InMemoryGitHubInstallationRepository,
   InMemoryProjectRepository,
+  InMemoryWorkflowRepository,
+  PostgresApprovalRepository,
+  PostgresArtifactRepository,
   PostgresGitHubInstallationRepository,
   PostgresProjectRepository,
+  PostgresWorkflowRepository,
+  type ApprovalRepository,
+  type ArtifactRepository,
   type GitHubInstallationRepository,
   type ProjectRepository,
+  type WorkflowRepository,
 } from "@factory/db";
 import type { ApiDependencies, GitHubService } from "./deps.js";
+import { createWorkflowService } from "./services/workflow-service.js";
 
 function resolveCipher(config: AppConfig): SecretCipher {
   if (config.FACTORY_MASTER_KEY) {
@@ -35,15 +45,30 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
 
   let installations: GitHubInstallationRepository;
   let projects: ProjectRepository;
+  let workflowRepository: WorkflowRepository;
+  let artifactRepository: ArtifactRepository;
+  let approvalRepository: ApprovalRepository;
 
   if (config.DATABASE_URL) {
     const { db } = createDatabase(config.DATABASE_URL);
     installations = new PostgresGitHubInstallationRepository(db);
     projects = new PostgresProjectRepository(db);
+    workflowRepository = new PostgresWorkflowRepository(db);
+    artifactRepository = new PostgresArtifactRepository(db);
+    approvalRepository = new PostgresApprovalRepository(db);
   } else {
     installations = new InMemoryGitHubInstallationRepository();
     projects = new InMemoryProjectRepository();
+    workflowRepository = new InMemoryWorkflowRepository();
+    artifactRepository = new InMemoryArtifactRepository();
+    approvalRepository = new InMemoryApprovalRepository();
   }
+
+  const workflows = createWorkflowService({
+    workflows: workflowRepository,
+    artifacts: artifactRepository,
+    approvals: approvalRepository,
+  });
 
   const providerCache = new Map<string, ReturnType<typeof createInstallationTokenProvider>>();
 
@@ -83,6 +108,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     projects,
     cipher,
     github,
+    workflows,
     manifest: {
       name: config.GITHUB_APP_NAME,
       baseUrl: config.FACTORY_BASE_URL,

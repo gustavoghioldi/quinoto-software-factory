@@ -1,3 +1,5 @@
+import type { ApprovalRecord, ArtifactRecord, WorkflowRun } from "@factory/core";
+
 export interface GitHubInstallationRecord {
   id: string;
   appId: string;
@@ -49,4 +51,20 @@ export interface ProjectRepository {
   create(input: NewProject): Promise<ProjectRecord>;
   list(): Promise<ProjectRecord[]>;
   findById(id: string): Promise<ProjectRecord | null>;
+}
+
+export interface WorkflowRepository {
+  createRun(run: WorkflowRun): Promise<void>;
+  findLatestByProject(projectId: string): Promise<WorkflowRun | null>;
+  saveRun(run: WorkflowRun): Promise<void>;
+}
+
+export interface ArtifactRepository {
+  create(artifact: ArtifactRecord): Promise<void>;
+  listByProject(projectId: string): Promise<ArtifactRecord[]>;
+}
+
+export interface ApprovalRepository {
+  create(approval: ApprovalRecord): Promise<void>;
+  listByProject(projectId: string): Promise<ApprovalRecord[]>;
 }

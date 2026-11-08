@@ -1,14 +1,32 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
+import type {
+  ApprovalRecord,
+  ArtifactRecord,
+  RunStatus,
+  Stage,
+  StageStatus,
+  WorkflowRun,
+} from "@factory/core";
 import type { Database } from "./client.js";
 import type {
+  ApprovalRepository,
+  ArtifactRepository,
   GitHubInstallationRecord,
   GitHubInstallationRepository,
   NewGitHubInstallation,
   NewProject,
   ProjectRecord,
   ProjectRepository,
+  WorkflowRepository,
 } from "./repositories.js";
-import { githubInstallations, projects } from "./schema.js";
+import {
+  approvals,
+  artifacts,
+  githubInstallations,
+  projects,
+  workflowRuns,
+  workflowStages,
+} from "./schema.js";
 
 export class PostgresGitHubInstallationRepository implements GitHubInstallationRepository {
   constructor(private readonly db: Database) {}
@@ -60,5 +78,149 @@ export class PostgresProjectRepository implements ProjectRepository {
   async findById(id: string): Promise<ProjectRecord | null> {
     const rows = await this.db.select().from(projects).where(eq(projects.id, id)).limit(1);
     return rows[0] ?? null;
+  }
+}
+
+export class PostgresWorkflowRepository implements WorkflowRepository {
+  constructor(private readonly db: Database) {}
+
+  async createRun(run: WorkflowRun): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      await tx.insert(workflowRuns).values({
+        id: run.id,
+        projectId: run.projectId,
+        currentStage: run.currentStage,
+        status: run.status,
+      });
+      await tx.insert(workflowStages).values(
+        run.stages.map((stage) => ({
+          runId: run.id,
+          stage: stage.stage,
+          status: stage.status,
+          attempts: stage.attempts,
+          startedAt: stage.startedAt ? new Date(stage.startedAt) : null,
+          finishedAt: stage.finishedAt ? new Date(stage.finishedAt) : null,
+          error: stage.error,
+        })),
+      );
+    });
+  }
+
+  async findLatestByProject(projectId: string): Promise<WorkflowRun | null> {
+    const rows = await this.db
+      .select()
+      .from(workflowRuns)
+      .where(eq(workflowRuns.projectId, projectId))
+      .orderBy(desc(workflowRuns.createdAt))
+      .limit(1);
+    const run = rows[0];
+    if (!run) {
+      return null;
+    }
+    const stages = await this.db
+      .select()
+      .from(workflowStages)
+      .where(eq(workflowStages.runId, run.id));
+    return {
+      id: run.id,
+      projectId: run.projectId,
+      currentStage: run.currentStage as Stage,
+      status: run.status as RunStatus,
+      stages: stages.map((stage) => ({
+        stage: stage.stage as Stage,
+        status: stage.status as StageStatus,
+        attempts: stage.attempts,
+        startedAt: stage.startedAt?.toISOString() ?? null,
+        finishedAt: stage.finishedAt?.toISOString() ?? null,
+        error: stage.error,
+      })),
+    };
+  }
+
+  async saveRun(run: WorkflowRun): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      await tx
+        .update(workflowRuns)
+        .set({ currentStage: run.currentStage, status: run.status, updatedAt: new Date() })
+        .where(eq(workflowRuns.id, run.id));
+      for (const stage of run.stages) {
+        await tx
+          .update(workflowStages)
+          .set({
+            status: stage.status,
+            attempts: stage.attempts,
+            startedAt: stage.startedAt ? new Date(stage.startedAt) : null,
+            finishedAt: stage.finishedAt ? new Date(stage.finishedAt) : null,
+            error: stage.error,
+          })
+          .where(and(eq(workflowStages.runId, run.id), eq(workflowStages.stage, stage.stage)));
+      }
+    });
+  }
+}
+
+export class PostgresArtifactRepository implements ArtifactRepository {
+  constructor(private readonly db: Database) {}
+
+  async create(artifact: ArtifactRecord): Promise<void> {
+    await this.db.insert(artifacts).values({
+      id: artifact.id,
+      projectId: artifact.projectId,
+      kind: artifact.kind,
+      path: artifact.path,
+      checksum: artifact.checksum,
+      createdAt: new Date(artifact.createdAt),
+    });
+  }
+
+  async listByProject(projectId: string): Promise<ArtifactRecord[]> {
+    const rows = await this.db
+      .select()
+      .from(artifacts)
+      .where(eq(artifacts.projectId, projectId))
+      .orderBy(desc(artifacts.createdAt));
+    return rows.map((row) => ({
+      id: row.id,
+      projectId: row.projectId,
+      kind: row.kind as ArtifactRecord["kind"],
+      path: row.path,
+      checksum: row.checksum,
+      createdAt: row.createdAt.toISOString(),
+    }));
+  }
+}
+
+export class PostgresApprovalRepository implements ApprovalRepository {
+  constructor(private readonly db: Database) {}
+
+  async create(approval: ApprovalRecord): Promise<void> {
+    await this.db.insert(approvals).values({
+      id: approval.id,
+      projectId: approval.projectId,
+      subject: approval.subject,
+      decision: approval.decision,
+      decidedBy: approval.decidedBy,
+      decidedAt: new Date(approval.decidedAt),
+      scope: approval.scope,
+      rationale: approval.rationale,
+    });
+  }
+
+  async listByProject(projectId: string): Promise<ApprovalRecord[]> {
+    const rows = await this.db
+      .select()
+      .from(approvals)
+      .where(eq(approvals.projectId, projectId))
+      .orderBy(desc(approvals.decidedAt));
+    return rows.map((row) => ({
+      id: row.id,
+      projectId: row.projectId,
+      subject: row.subject,
+      decision: row.decision as ApprovalRecord["decision"],
+      decidedBy: row.decidedBy,
+      decidedAt: row.decidedAt.toISOString(),
+      scope: row.scope,
+      rationale: row.rationale,
+    }));
   }
 }
