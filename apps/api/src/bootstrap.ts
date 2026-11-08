@@ -5,6 +5,7 @@ import {
   listInstallationRepositories,
   verifyWebhookSignature,
 } from "@factory/adapters-github";
+import { createRailwayClient, MockRailwayClient } from "@factory/adapters-railway";
 import { AesSecretCipher, ConfigError, type AppConfig, type SecretCipher } from "@factory/core";
 import {
   createDatabase,
@@ -25,6 +26,7 @@ import {
   type WorkflowRepository,
 } from "@factory/db";
 import type { ApiDependencies, GitHubService } from "./deps.js";
+import { createAgentRuntime } from "./services/agent-runtime.js";
 import { createWorkflowService } from "./services/workflow-service.js";
 
 function resolveCipher(config: AppConfig): SecretCipher {
@@ -70,6 +72,14 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     approvals: approvalRepository,
   });
 
+  const railway = config.RAILWAY_API_TOKEN
+    ? createRailwayClient({ token: config.RAILWAY_API_TOKEN })
+    : new MockRailwayClient();
+  const agentRuntime = createAgentRuntime({
+    railway,
+    image: config.RAILWAY_RUNNER_IMAGE,
+  });
+
   const providerCache = new Map<string, ReturnType<typeof createInstallationTokenProvider>>();
 
   async function providerForLatest() {
@@ -109,6 +119,7 @@ export async function createDependencies(config: AppConfig): Promise<ApiDependen
     cipher,
     github,
     workflows,
+    agentRuntime,
     manifest: {
       name: config.GITHUB_APP_NAME,
       baseUrl: config.FACTORY_BASE_URL,

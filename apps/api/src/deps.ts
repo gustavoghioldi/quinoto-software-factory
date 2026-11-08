@@ -5,6 +5,7 @@ import type {
 } from "@factory/adapters-github";
 import type { SecretCipher } from "@factory/core";
 import type { GitHubInstallationRepository, ProjectRepository } from "@factory/db";
+import type { AgentRuntime } from "./services/agent-runtime.js";
 import type { WorkflowService } from "./services/workflow-service.js";
 
 export interface GitHubService {
@@ -20,6 +21,7 @@ export interface ApiDependencies {
   cipher: SecretCipher;
   github: GitHubService;
   workflows: WorkflowService;
+  agentRuntime: AgentRuntime;
   manifest: {
     name: string;
     baseUrl: string;

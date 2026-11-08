@@ -1,3 +1,4 @@
+import { MockRailwayClient } from "@factory/adapters-railway";
 import { AesSecretCipher } from "@factory/core";
 import {
   InMemoryApprovalRepository,
@@ -7,6 +8,7 @@ import {
   InMemoryWorkflowRepository,
 } from "@factory/db";
 import type { ApiDependencies, GitHubService } from "../src/deps.js";
+import { createAgentRuntime } from "../src/services/agent-runtime.js";
 import { createWorkflowService } from "../src/services/workflow-service.js";
 
 export const masterKey = Buffer.alloc(32, 1).toString("base64");
@@ -50,6 +52,7 @@ export function makeDeps(overrides: Partial<GitHubService> = {}): TestDeps {
       artifacts: artifactRepository,
       approvals: approvalRepository,
     }),
+    agentRuntime: createAgentRuntime({ railway: new MockRailwayClient() }),
     manifest: {
       name: "Quinoto Software Factory",
       baseUrl: "https://factory.example.com",

@@ -8,6 +8,7 @@ import { registerApprovalRoutes } from "./routes/approvals.js";
 import { registerGitHubRoutes } from "./routes/github.js";
 import { registerHealthRoutes, type ReadinessCheck } from "./routes/health.js";
 import { registerProjectRoutes } from "./routes/projects.js";
+import { registerSessionRoutes } from "./routes/sessions.js";
 import { registerWebhookRoutes } from "./routes/webhooks.js";
 import { registerWorkflowRoutes } from "./routes/workflow.js";
 
@@ -42,6 +43,7 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
     void app.register((instance) => registerWebhookRoutes(instance, deps));
     void app.register((instance) => registerWorkflowRoutes(instance, deps));
     void app.register((instance) => registerApprovalRoutes(instance, deps));
+    void app.register((instance) => registerSessionRoutes(instance, deps));
   }
 
   return app;

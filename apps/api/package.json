@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@factory/adapters-github": "workspace:*",
+    "@factory/adapters-railway": "workspace:*",
     "@factory/core": "workspace:*",
     "@factory/db": "workspace:*",
     "@fastify/cors": "^10.0.1",
