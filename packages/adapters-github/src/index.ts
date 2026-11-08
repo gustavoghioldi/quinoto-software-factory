@@ -1,4 +1,6 @@
 export { GitHubApiError } from "./errors.js";
+export { openPullRequest, ProtectedBranchError } from "./delivery.js";
+export type { OpenPullRequestInput, PullRequestResult } from "./delivery.js";
 export { createAppJwt } from "./jwt.js";
 export { buildGitHubAppManifest, exchangeManifestCode } from "./manifest.js";
 export type {

@@ -83,3 +83,15 @@
 
 **Completadas:** `TSK-044` a `TSK-054` (**11/11**). F3 cerrado.
 **Nota:** sin `RAILWAY_API_TOKEN` se usa el mock; las sesiones persisten en Postgres.
+
+## Evidencia F4 (2026-11-08)
+
+| Verificación | Comando | Resultado |
+|---|---|---|
+| Tests | `pnpm test` | 89 tests OK (core 31, github 17, railway 4, api 37) |
+| Typecheck | `pnpm typecheck` | 12/12 tareas OK |
+| Lint | `pnpm lint` | 8/8 tareas OK |
+| Build | `pnpm build` | 8/8 tareas OK |
+| UI | `curl /sessions/:id` | “Diff”, “Pull Request”, “Sesión de agente” |
+
+**Completadas:** `TSK-055` a `TSK-062` (**8/8**). F4 cerrado.

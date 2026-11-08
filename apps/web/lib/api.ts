@@ -1,4 +1,13 @@
-import type { AgentSession, Approval, Project, Repository, SessionEvent, Workflow } from "./types";
+import type {
+  AgentSession,
+  Approval,
+  Project,
+  PullRequestResult,
+  Repository,
+  SessionDiff,
+  SessionEvent,
+  Workflow,
+} from "./types";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -77,4 +86,13 @@ export const api = {
   sessionEvents: (sessionId: string) =>
     request<{ events: SessionEvent[] }>(`/sessions/${sessionId}/events`),
   sessionEventsUrl: (sessionId: string) => `${apiUrl}/sessions/${sessionId}/events/stream`,
+  getSessionDiff: (sessionId: string) => request<SessionDiff>(`/sessions/${sessionId}/diff`),
+  openPullRequest: (
+    sessionId: string,
+    input: { title: string; body: string; baseBranch: string },
+  ) =>
+    request<PullRequestResult>(`/sessions/${sessionId}/pull-request`, {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
 };
