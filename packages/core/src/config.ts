@@ -32,6 +32,8 @@ export const envSchema = z.object({
   CORS_ORIGINS: z.string().default("http://localhost:3000,http://127.0.0.1:3000"),
   FACTORY_BASE_URL: z.string().url().default("http://localhost:4000"),
   GITHUB_APP_NAME: z.string().min(1).default("quinoto-software-factory"),
+  RAILWAY_API_TOKEN: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
+  RAILWAY_RUNNER_IMAGE: z.string().min(1).default("ghcr.io/quinoto/factory-runner:latest"),
   TELEMETRY_ENABLED: booleanFromString,
 });
 

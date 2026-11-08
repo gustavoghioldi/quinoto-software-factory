@@ -69,3 +69,15 @@
 | UI | `curl /approvals` | “Aprobaciones y workflow” |
 
 **Completadas:** `TSK-032` a `TSK-043` (**12/12**). F2 cerrado.
+
+## Evidencia F3 (parcial, 2026-11-08)
+
+| Verificación | Comando | Resultado |
+|---|---|---|
+| Tests | `pnpm test` | 80 tests OK (core 31, github 13, railway 4, api 32) |
+| Typecheck | `pnpm typecheck` | 12/12 tareas OK |
+| Lint | `pnpm lint` | 8/8 tareas OK |
+| Build | `pnpm build` | 8/8 tareas OK |
+
+**Completadas:** `TSK-044`, `TSK-046`, `TSK-048`, `TSK-049`, `TSK-053`, `TSK-054` (6/11).
+**Pendientes:** `TSK-045` (imagen runner), `TSK-047` (DB de sesiones), `TSK-050`/`TSK-052` (SSE) y `TSK-051` (visor de sesión).
