@@ -21,6 +21,7 @@ describe("buildGitHubAppManifest", () => {
       pull_requests: "write",
       metadata: "read",
     });
+    expect(manifest.default_events).toEqual(["pull_request"]);
     expect(manifest.public).toBe(false);
   });
 

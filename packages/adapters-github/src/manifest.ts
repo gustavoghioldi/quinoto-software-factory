@@ -63,7 +63,7 @@ export function buildGitHubAppManifest(options: GitHubManifestOptions): GitHubAp
       pull_requests: "write",
       metadata: "read",
     },
-    default_events: ["installation", "installation_repositories", "pull_request"],
+    default_events: ["pull_request"],
   };
 }
 
