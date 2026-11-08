@@ -26,20 +26,36 @@ export default function HomePage() {
             Plano de control self-hosted para OpenCode + QuinotoSpec.
           </p>
         </div>
-        <Link
-          href="/projects/new"
-          style={{
-            background: "#1a5fb4",
-            color: "white",
-            borderRadius: 6,
-            padding: "0.5rem 1rem",
-            textDecoration: "none",
-            fontWeight: 600,
-            whiteSpace: "nowrap",
-          }}
-        >
-          Nuevo proyecto
-        </Link>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <Link
+            href="/approvals"
+            style={{
+              border: "1px solid #1a5fb4",
+              color: "#1a5fb4",
+              borderRadius: 6,
+              padding: "0.5rem 1rem",
+              textDecoration: "none",
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+            }}
+          >
+            Aprobaciones
+          </Link>
+          <Link
+            href="/projects/new"
+            style={{
+              background: "#1a5fb4",
+              color: "white",
+              borderRadius: 6,
+              padding: "0.5rem 1rem",
+              textDecoration: "none",
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+            }}
+          >
+            Nuevo proyecto
+          </Link>
+        </div>
       </header>
 
       <section>

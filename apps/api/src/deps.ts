@@ -5,6 +5,7 @@ import type {
 } from "@factory/adapters-github";
 import type { SecretCipher } from "@factory/core";
 import type { GitHubInstallationRepository, ProjectRepository } from "@factory/db";
+import type { WorkflowService } from "./services/workflow-service.js";
 
 export interface GitHubService {
   exchangeManifestCode(code: string): Promise<ManifestCredentials>;
@@ -18,6 +19,7 @@ export interface ApiDependencies {
   projects: ProjectRepository;
   cipher: SecretCipher;
   github: GitHubService;
+  workflows: WorkflowService;
   manifest: {
     name: string;
     baseUrl: string;

@@ -1,11 +1,15 @@
 import { randomUUID } from "node:crypto";
+import type { ApprovalRecord, ArtifactRecord, WorkflowRun } from "@factory/core";
 import type {
+  ApprovalRepository,
+  ArtifactRepository,
   GitHubInstallationRecord,
   GitHubInstallationRepository,
   NewGitHubInstallation,
   NewProject,
   ProjectRecord,
   ProjectRepository,
+  WorkflowRepository,
 } from "./repositories.js";
 
 export class InMemoryGitHubInstallationRepository implements GitHubInstallationRepository {
@@ -62,5 +66,49 @@ export class InMemoryProjectRepository implements ProjectRepository {
 
   async findById(id: string): Promise<ProjectRecord | null> {
     return this.records.find((item) => item.id === id) ?? null;
+  }
+}
+
+export class InMemoryWorkflowRepository implements WorkflowRepository {
+  private readonly runs: WorkflowRun[] = [];
+
+  async createRun(run: WorkflowRun): Promise<void> {
+    this.runs.push(structuredClone(run));
+  }
+
+  async findLatestByProject(projectId: string): Promise<WorkflowRun | null> {
+    const latest = this.runs.filter((run) => run.projectId === projectId).at(-1);
+    return latest ? structuredClone(latest) : null;
+  }
+
+  async saveRun(run: WorkflowRun): Promise<void> {
+    const index = this.runs.findIndex((item) => item.id === run.id);
+    if (index >= 0) {
+      this.runs[index] = structuredClone(run);
+    }
+  }
+}
+
+export class InMemoryArtifactRepository implements ArtifactRepository {
+  private readonly records: ArtifactRecord[] = [];
+
+  async create(artifact: ArtifactRecord): Promise<void> {
+    this.records.push(structuredClone(artifact));
+  }
+
+  async listByProject(projectId: string): Promise<ArtifactRecord[]> {
+    return this.records.filter((artifact) => artifact.projectId === projectId);
+  }
+}
+
+export class InMemoryApprovalRepository implements ApprovalRepository {
+  private readonly records: ApprovalRecord[] = [];
+
+  async create(approval: ApprovalRecord): Promise<void> {
+    this.records.push(structuredClone(approval));
+  }
+
+  async listByProject(projectId: string): Promise<ApprovalRecord[]> {
+    return this.records.filter((approval) => approval.projectId === projectId);
   }
 }

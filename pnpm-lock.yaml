@@ -141,6 +141,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@factory/core':
+        specifier: workspace:*
+        version: link:../core
       drizzle-orm:
         specifier: ^0.38.3
         version: 0.38.4(@types/pg@8.23.1)(@types/react@19.3.0)(pg@8.23.1)(react@19.3.1)

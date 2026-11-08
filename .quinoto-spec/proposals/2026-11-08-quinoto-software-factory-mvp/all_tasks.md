@@ -60,11 +60,12 @@
 
 | Verificación | Comando | Resultado |
 |---|---|---|
-| Tests | `pnpm test` | 60 tests OK (core 31, adapter 13, api 16) |
+| Tests | `pnpm test` | 67 tests OK (core 31, adapter 13, api 23) |
 | Typecheck | `pnpm typecheck` | 10/10 tareas OK |
 | Lint | `pnpm lint` | 7/7 tareas OK |
 | Build | `pnpm build` | 7/7 tareas OK |
-| Migración | `pnpm --filter @factory/db db:generate` | `0001_orange_union_jack.sql` (6 tablas) |
+| Migración | `docker compose logs migrate` | `migrations applied` (0000 + 0001) |
+| Endpoints | `curl /projects`, `/approvals` | 200 OK |
+| UI | `curl /approvals` | “Aprobaciones y workflow” |
 
-**Completadas:** `TSK-032`, `TSK-033`, `TSK-034`, `TSK-035`, `TSK-037`, `TSK-041`, `TSK-043` (7/12).
-**Pendientes:** `TSK-036` (endpoints de workflow), `TSK-038` a `TSK-040` (aprobaciones) y `TSK-042` (endpoint de retry).
+**Completadas:** `TSK-032` a `TSK-043` (**12/12**). F2 cerrado.
