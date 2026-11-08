@@ -51,6 +51,7 @@
 | Build | `pnpm build` | 7/7 tareas OK |
 | Migraciones | `docker compose logs migrate` | `migrations applied` |
 | Endpoints | `curl /projects`, `/github/manifest`, `/github/repos` | 200 / 200 / 409 correcto |
+| UI | `curl /` y `/projects/new` | “Nuevo proyecto” / “Conectar GitHub” |
 
-**Completadas:** `TSK-016` a `TSK-024` y `TSK-027`/`TSK-028` a `TSK-031` (14/16).
-**Pendientes:** `TSK-025` y `TSK-026` (wizard y listado de proyectos en la UI).
+**Completadas:** `TSK-016` a `TSK-031` (**16/16**). F1 cerrado.
+**Nota:** el manifest flow end-to-end requiere `FACTORY_BASE_URL` pública (túnel o dominio).
