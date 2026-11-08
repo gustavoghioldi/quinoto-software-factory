@@ -36,4 +36,13 @@ describe("loadConfig", () => {
   it("defaults CORS to the local web origins", () => {
     expect(loadConfig({}).CORS_ORIGINS).toBe("http://localhost:3000,http://127.0.0.1:3000");
   });
+
+  it("rejects a malformed master key", () => {
+    expect(() => loadConfig({ FACTORY_MASTER_KEY: "too-short" })).toThrow(ConfigError);
+  });
+
+  it("accepts a valid master key", () => {
+    const key = Buffer.alloc(32, 7).toString("base64");
+    expect(loadConfig({ FACTORY_MASTER_KEY: key }).FACTORY_MASTER_KEY).toBe(key);
+  });
 });
